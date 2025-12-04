@@ -5,7 +5,7 @@ export const DEFAULT_MARKDOWN = `# Project Proposal: DocuMorph
 ## 1. Introduction
 This document outlines the architecture for **DocuMorph**, a client-side tool for converting Markdown to formatted Word documents.
 
-![Abstract Architecture](https://via.placeholder.com/600x200.png?text=Architecture+Diagram)
+![Abstract Architecture](https://avatars.githubusercontent.com/u/36368107)
 
 ### Key Features
 * Real-time preview
@@ -100,5 +100,5 @@ export const DEFAULT_CONFIG: DocumentConfig = {
   link: {
     color: '#0284c7',
     underline: true,
-  }
+  },
 };
