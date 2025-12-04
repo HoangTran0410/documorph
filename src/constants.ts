@@ -1,226 +1,194 @@
 import { DocumentConfig } from './types';
 
-export const DEFAULT_MARKDOWN = `# DocuMorph - Markdown Showcase
+export const DEFAULT_MARKDOWN = `# 🚀 Welcome to DocuMorph
 
-Welcome to **DocuMorph**! This document demonstrates all supported Markdown features.
-
----
-
-## 1. Text Formatting
-
-You can make text **bold**, *italic*, or ***both***. You can also use ~~strikethrough~~ and \`inline code\`.
-
-Here's a [link to Google](https://google.com) and an image:
-
-![Sample Image](https://avatars.githubusercontent.com/u/36368107)
+**Transform your Markdown & HTML into beautiful Word and PDF documents**
 
 ---
 
-## 2. Headings
+## 📖 What is DocuMorph?
 
-### This is H3
-#### This is H4
-##### This is H5
-###### This is H6
+DocuMorph is a powerful web-based document transformation tool that converts **Markdown** and **HTML** content into professionally formatted **Word (.docx)** and **PDF** documents.
 
----
+### ✨ Key Features
 
-## 3. Lists
-
-### Unordered Lists
-- First item
-- Second item
-  - Nested item 1
-  - Nested item 2
-    - Deeply nested
-- Third item
-
-### Ordered Lists
-1. First step
-2. Second step
-   1. Sub-step A
-   2. Sub-step B
-3. Third step
-
-### Task Lists
-- [x] Completed task
-- [ ] Pending task
-- [ ] Another task
+- 👁️ **Live Preview** - See your document rendered in real-time as you type
+- 📝 **Markdown Support** - Full GitHub Flavored Markdown (GFM) support
+- 🌐 **HTML Support** - Direct HTML input with inline styles
+- 📄 **Word Export** - Generate .docx files with proper formatting
+- 📑 **PDF Export** - Export to PDF with selectable text
+- 🎨 **Syntax Highlighting** - Beautiful code blocks for 100+ languages
+- 🧮 **Math Equations** - LaTeX math rendering with KaTeX
+- ⚙️ **Customizable Styles** - Fine-tune fonts, colors, spacing, and alignment
+- 🌙 **Dark Mode** - Easy on the eyes for late-night writing
+- 📱 **Responsive Design** - Works seamlessly on desktop and mobile
 
 ---
 
-## 4. Blockquotes
+## 🎯 Quick Start Guide
 
-> "The only way to do great work is to love what you do."
-> — Steve Jobs
+### 1️⃣ Writing Content
 
-> Multi-line quotes
-> can span multiple lines
-> and look beautiful!
+Start typing in the **left panel** using Markdown syntax. Your content will be rendered in real-time in the **center preview panel**.
+
+### 2️⃣ Customizing Styles
+
+Click the **⚙️ settings icon** on the right to customize:
+- 🔤 Heading styles (H1, H2, H3)
+- 📝 Paragraph formatting
+- 💻 Code block appearance
+- 🖼️ Image sizing and alignment
+- 💬 Quote blocks
+- 🔗 Link colors
+
+### 3️⃣ Exporting Documents
+
+When you're ready, click:
+- **📄 DOCX** button to export to Microsoft Word
+- **📑 PDF** button to export to PDF format
 
 ---
 
-## 5. Code Blocks
+## 🎨 Supported Markdown Features
 
-### JavaScript Example
+### ✍️ Text Formatting
+
+- **Bold text** with \`**bold**\`
+- *Italic text* with \`*italic*\`
+- ***Bold and italic*** with \`***both***\`
+- ~~Strikethrough~~ with \`~~text~~\`
+- \`Inline code\` with backticks
+
+### 💻 Code Blocks
+
 \`\`\`javascript
-function fibonacci(n) {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2);
-}
-
-console.log(fibonacci(10)); // Output: 55
-\`\`\`
-
-### Python Example
-\`\`\`python
-def calculate_sum(numbers):
-    """Calculate sum of a list of numbers."""
-    total = 0
-    for num in numbers:
-        total += num
-    return total
-
-print(calculate_sum([1, 2, 3, 4, 5]))  # Output: 15
-\`\`\`
-
-### TypeScript Example
-\`\`\`typescript
-interface User {
-  name: string;
-  age: number;
-  email?: string;
-}
-
-const user: User = {
-  name: "Alice",
-  age: 30
+// Syntax highlighting for 100+ languages
+const greet = (name) => {
+  console.log(\`Hello, \${name}! 👋\`);
 };
+
+greet("DocuMorph");
 \`\`\`
 
----
+### 📊 Tables
 
-## 6. Tables
+| Feature | Markdown | HTML | Export |
+|---------|----------|------|--------|
+| Headings | ✅ | ✅ | ✅ |
+| Lists | ✅ | ✅ | ✅ |
+| Tables | ✅ | ✅ | ✅ |
+| Images | ✅ | ✅ | ✅ |
+| Math | ✅ | ✅ | ✅ |
 
-| Feature | Status | Priority |
-|---------|--------|----------|
-| Markdown Parser | ✅ Done | High |
-| PDF Export | ✅ Done | High |
-| DOCX Export | ✅ Done | High |
-| Syntax Highlighting | ✅ Done | Medium |
-| Dark Mode | ✅ Done | Low |
+### 🧮 Mathematical Equations
 
----
+Inline math: $E = mc^2$
 
-## 7. Mathematical Equations
-
-### Inline Math
-The famous equation $E = mc^2$ was discovered by Einstein.
-
-The quadratic formula is $x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$
-
-### Block Math
-
-The Gaussian Integral:
+Block math:
 $$
-\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}
+f(x) = \\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}
 $$
 
-Maxwell's Equations:
-$$
-\\nabla \\times \\vec{E} = -\\frac{\\partial \\vec{B}}{\\partial t}
-$$
+### 📝 Lists
 
-Euler's Identity:
-$$
-e^{i\\pi} + 1 = 0
-$$
+1. Ordered lists
+2. With numbering
+   - Nested unordered lists
+   - With bullets
 
----
+**Task Lists:**
+- [x] ✅ Completed task
+- [ ] ⏳ Pending task
+- [ ] 📋 Another task
 
-## 8. Horizontal Rules
+### 💬 Blockquotes
 
-You can create horizontal rules with three or more hyphens, asterisks, or underscores:
+> "The best way to predict the future is to invent it."
+> — Alan Kay
 
 ---
 
-***
+## 🌐 HTML Support
 
-___
+You can also paste **raw HTML** directly:
 
----
-
-## 9. Nested Elements
-
-You can combine different elements:
-
-1. **First item** with *emphasis*
-   - Nested bullet with \`inline code\`
-   - Another bullet with a [link](https://example.com)
-2. Second item with an inline formula: $\\alpha + \\beta = \\gamma$
-   > And a nested quote!
-
----
-
-## 10. Complex Example
-
-Here's a real-world example combining multiple features:
-
-### Algorithm: Quick Sort
-
-\`\`\`python
-def quicksort(arr):
-    """
-    Sorts an array using the quicksort algorithm.
-    Time Complexity: O(n log n) average case
-    """
-    if len(arr) <= 1:
-        return arr
-
-    pivot = arr[len(arr) // 2]
-    left = [x for x in arr if x < pivot]
-    middle = [x for x in arr if x == pivot]
-    right = [x for x in arr if x > pivot]
-
-    return quicksort(left) + middle + quicksort(right)
-
-# Example usage
-numbers = [3, 6, 8, 10, 1, 2, 1]
-print(quicksort(numbers))  # Output: [1, 1, 2, 3, 6, 8, 10]
+\`\`\`html
+<div>
+  <h2>Custom HTML</h2>
+  <p style="color: #0066cc;">
+    Text with <strong>inline styles</strong>
+  </p>
+  <img src="url" style="width: 100px; height: 100px" />
+</div>
 \`\`\`
 
-**Time Complexity Analysis:**
-
-| Case | Complexity |
-|------|-----------|
-| Best Case | $O(n \\log n)$ |
-| Average Case | $O(n \\log n)$ |
-| Worst Case | $O(n^2)$ |
-
-> **Note:** The worst case occurs when the array is already sorted and the pivot is always the smallest or largest element.
+**DocuMorph will:**
+- ✅ Parse nested HTML structures
+- ✅ Respect inline styles (colors, sizes)
+- ✅ Convert everything to Word/PDF
 
 ---
 
-## Conclusion
+## 💡 Pro Tips
 
-DocuMorph supports all standard Markdown features including:
-
-- ✅ **Text formatting** (bold, italic, strikethrough)
-- ✅ **Headers** (H1-H6)
-- ✅ **Lists** (ordered, unordered, task lists)
-- ✅ **Links and images**
-- ✅ **Code blocks** with syntax highlighting
-- ✅ **Tables**
-- ✅ **Blockquotes**
-- ✅ **Mathematical equations** (inline and block)
-- ✅ **Horizontal rules**
-
-*Happy writing! 🚀*
+1. 🔄 **Use the Reset Button** - Click RESET in the editor or styles panel to start fresh
+2. 👁️ **Toggle Panels** - Hide/show editor and config panels for focused viewing
+3. 🌙 **Dark Mode** - Toggle dark mode for comfortable night-time editing
+4. 🖼️ **Image Sizing** - Use inline styles or the Styles Config panel to control image dimensions
+5. 🎨 **Code Languages** - Specify language after \\\`\\\`\\\` for proper syntax highlighting
 
 ---
 
-*Generated with DocuMorph - Transform your Markdown into beautiful documents*
-`;
+## 🎯 Example Use Cases
+
+### 📚 Documentation
+Create technical documentation with code examples, tables, and diagrams.
+
+### 📊 Reports
+Generate professional reports with data tables, charts, and formatted text.
+
+### 🎓 Academic Papers
+Write papers with mathematical equations, citations, and structured content.
+
+### 📽️ Presentations
+Convert markdown notes to formatted documents for sharing.
+
+### 💼 Resumes & CVs
+Design and export professional resumes with consistent formatting.
+
+---
+
+## 🛠️ Technical Details
+
+**Built With:**
+- ⚛️ React + TypeScript
+- 📝 Marked (Markdown parser)
+- 📄 docx.js (Word generation)
+- 🧮 KaTeX (Math rendering)
+- 🎨 Highlight.js (Code highlighting)
+
+**Export Formats:**
+- 📄 .docx (Microsoft Word 2007+)
+- 📑 .pdf (via browser print)
+
+**Browser Support:**
+- ✅ Chrome, Firefox, Safari, Edge
+- 📱 Mobile browsers supported
+
+---
+
+## 🎉 Get Started Now!
+
+1. 🧹 **Clear this text** by clicking the RESET button
+2. ✍️ **Start writing** your content in Markdown or HTML
+3. 🎨 **Customize styles** to match your preferences
+4. 📤 **Export** to Word or PDF when ready
+
+*Happy documenting with DocuMorph! 🎊*
+
+---
+
+**Need Help?** 📖 Visit our documentation or 🐛 report issues on GitHub.`;
 
 export const DEFAULT_CONFIG: DocumentConfig = {
   h1: {
