@@ -10,6 +10,22 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: '../',
       emptyOutDir: false,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // React and related libraries
+            'react-vendor': ['react', 'react-dom'],
+            // UI libraries
+            'ui-vendor': ['lucide-react'],
+            // Document processing libraries
+            'docx-vendor': ['docx', 'file-saver'],
+            // Markdown and syntax highlighting
+            'markdown-vendor': ['marked', 'highlight.js'],
+            // Math rendering
+            'math-vendor': ['katex'],
+          },
+        },
+      },
     },
     server: {
       port: 3000,

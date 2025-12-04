@@ -9,22 +9,37 @@ interface PreviewProps {
 
 const Preview: React.FC<PreviewProps> = ({ content, config }) => {
   const [html, setHtml] = React.useState('');
+  const [isParsing, setIsParsing] = React.useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    const parse = async () => {
-      const parsedHtml = await parseMarkdownToHtml(content);
-      setHtml(parsedHtml);
+    // Debounce the parsing - wait 300ms after user stops typing
+    const timeoutId = setTimeout(async () => {
+      try {
+        setIsParsing(true);
+        const parsedHtml = await parseMarkdownToHtml(content);
+        setHtml(parsedHtml);
+      } finally {
+        setIsParsing(false);
+      }
+    }, 300);
+
+    // Cleanup function to cancel pending parse if content changes
+    return () => {
+      clearTimeout(timeoutId);
     };
-    parse();
   }, [content]);
 
   return (
     <div className="h-full flex flex-col bg-gray-100 dark:bg-slate-950 overflow-hidden relative">
       <div className="p-2 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 text-[10px] font-mono text-slate-500 dark:text-slate-400 flex justify-between items-center shadow-sm z-10">
         <span className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-          LIVE PREVIEW
+          <span
+            className={`w-2 h-2 rounded-full ${
+              isParsing ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'
+            }`}
+          ></span>
+          {isParsing ? 'PARSING...' : 'LIVE PREVIEW'}
         </span>
         <span className="bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300">
           Continuous Scroll • A4 Width
