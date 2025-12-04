@@ -120,11 +120,52 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
 
                 /* Lists */
                 #preview-content ul, #preview-content ol {
-                  margin-left: 20pt;
-                  margin-bottom: 10pt;
+                  padding-left: 30pt;
+                  margin-top: 8pt;
+                  margin-bottom: 12pt;
+                  margin-left: 0;
                 }
+
+                #preview-content ul {
+                  list-style-type: disc;
+                }
+
+                #preview-content ol {
+                  list-style-type: decimal;
+                }
+
+                #preview-content ul ul {
+                  list-style-type: circle;
+                  margin-top: 4pt;
+                  margin-bottom: 4pt;
+                }
+
+                #preview-content ul ul ul {
+                  list-style-type: square;
+                }
+
                 #preview-content li {
-                   margin-bottom: 4pt;
+                  margin-bottom: 6pt;
+                  padding-left: 4pt;
+                }
+
+                /* Nested lists */
+                #preview-content li > ul,
+                #preview-content li > ol {
+                  margin-top: 4pt;
+                }
+
+                /* Task list checkboxes */
+                #preview-content input[type="checkbox"] {
+                  margin-right: 8pt;
+                  width: 14pt;
+                  height: 14pt;
+                  cursor: pointer;
+                }
+
+                #preview-content li:has(> input[type="checkbox"]) {
+                  list-style-type: none;
+                  margin-left: -20pt;
                 }
 
                 /* Quotes */
@@ -159,6 +200,8 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
             }pt 0;
                   border-radius: 6px;
                   overflow-x: auto;
+                  white-space: pre-wrap;
+                  word-wrap: break-word;
                 }
 
                 #preview-content pre code.hljs {
@@ -169,6 +212,8 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
                   border-radius: 6px;
                   line-height: 1.5;
                   background: #f6f8fa !important;
+                  white-space: pre-wrap;
+                  word-wrap: break-word;
                 }
 
                 /* Syntax highlighting colors */
@@ -209,9 +254,25 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
 
                 /* Images */
                 #preview-content img {
-                  max-width: 100%;
+                  max-width: ${config.img.maxWidth};
                   height: auto;
-                  margin: 10pt 0;
+                  margin-top: ${config.img.marginTop}pt;
+                  margin-bottom: ${config.img.marginBottom}pt;
+                  display: block;
+                  margin-left: ${
+                    config.img.alignment === 'center'
+                      ? 'auto'
+                      : config.img.alignment === 'right'
+                      ? 'auto'
+                      : '0'
+                  };
+                  margin-right: ${
+                    config.img.alignment === 'center'
+                      ? 'auto'
+                      : config.img.alignment === 'right'
+                      ? '0'
+                      : 'auto'
+                  };
                 }
 
                 #preview-content hr {

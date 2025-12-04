@@ -57,6 +57,48 @@ const fetchImage = async (url: string): Promise<ArrayBuffer | null> => {
 };
 
 /**
+ * Extract image dimensions from HTML element (style, width/height attributes)
+ * Returns dimensions in pixels, or default values if not found
+ */
+const getImageDimensions = (imgElement: HTMLElement): { width: number; height: number } => {
+  let width = 400; // default width
+  let height = 300; // default height
+
+  // Try to get from width/height attributes
+  const widthAttr = imgElement.getAttribute('width');
+  const heightAttr = imgElement.getAttribute('height');
+
+  if (widthAttr) {
+    const w = parseInt(widthAttr);
+    if (!isNaN(w)) width = w;
+  }
+
+  if (heightAttr) {
+    const h = parseInt(heightAttr);
+    if (!isNaN(h)) height = h;
+  }
+
+  // Try to get from inline style (overrides attributes)
+  const styleAttr = imgElement.getAttribute('style');
+  if (styleAttr) {
+    const widthMatch = styleAttr.match(/width:\s*(\d+)(?:px)?/i);
+    const heightMatch = styleAttr.match(/height:\s*(\d+)(?:px)?/i);
+
+    if (widthMatch) {
+      const w = parseInt(widthMatch[1]);
+      if (!isNaN(w)) width = w;
+    }
+
+    if (heightMatch) {
+      const h = parseInt(heightMatch[1]);
+      if (!isNaN(h)) height = h;
+    }
+  }
+
+  return { width, height };
+};
+
+/**
  * Processes child nodes recursively to create TextRuns, Hyperlinks, or ImageRuns
  */
 const processInlineChildren = async (
@@ -134,13 +176,13 @@ const processInlineChildren = async (
         if (src) {
           const buffer = await fetchImage(src);
           if (buffer) {
-            // Create image run (limited size for safety)
+            const dimensions = getImageDimensions(el);
             children.push(
               new ImageRun({
                 data: new Uint8Array(buffer),
                 transformation: {
-                  width: 400,
-                  height: 300, // Basic aspect ratio handling would require reading image dims
+                  width: dimensions.width,
+                  height: dimensions.height,
                 },
               } as any)
             );
@@ -427,12 +469,13 @@ export const generateDocxBlob = async (
       if (src) {
         const buffer = await fetchImage(src);
         if (buffer) {
+          const dimensions = getImageDimensions(element);
           docxChildren.push(
             new Paragraph({
               children: [
                 new ImageRun({
                   data: new Uint8Array(buffer),
-                  transformation: { width: 400, height: 300 },
+                  transformation: { width: dimensions.width, height: dimensions.height },
                 } as any),
               ],
             })

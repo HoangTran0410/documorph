@@ -13,17 +13,19 @@ renderer.code = ({ text, lang }: { text: string; lang?: string }) => {
   if (lang && hljs.getLanguage(lang)) {
     try {
       const highlighted = hljs.highlight(text, { language: lang }).value;
-      return `<pre><code class="hljs language-${lang}">${highlighted}</code></pre>`;
+      return `<pre style="white-space: pre-wrap;"><code class="hljs language-${lang}" style="white-space: pre-wrap;">${highlighted}</code></pre>`;
     } catch (err) {
       console.error('Highlight error:', err);
     }
   }
   const highlighted = hljs.highlightAuto(text).value;
-  return `<pre><code class="hljs">${highlighted}</code></pre>`;
+  return `<pre style="white-space: pre-wrap;"><code class="hljs" style="white-space: pre-wrap;">${highlighted}</code></pre>`;
 };
 
 marked.setOptions({
-  renderer: renderer
+  renderer: renderer,
+  gfm: true, // Enable GitHub Flavored Markdown
+  breaks: false // Don't convert line breaks to <br>
 });
 
 /**

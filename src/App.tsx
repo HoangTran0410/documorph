@@ -306,7 +306,11 @@ function App() {
                 </button>
               </div>
             )}
-            <ConfigPanel config={config} onChange={setConfig} />
+            <ConfigPanel
+              config={config}
+              onChange={setConfig}
+              onReset={() => setConfig(DEFAULT_CONFIG)}
+            />
           </div>
         )}
       </div>

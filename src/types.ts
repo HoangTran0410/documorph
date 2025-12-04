@@ -10,6 +10,13 @@ export interface StyleConfig {
   underline?: boolean;
 }
 
+export interface ImageConfig {
+  maxWidth: string; // e.g., '100%', '80%', '500px'
+  alignment: 'left' | 'center' | 'right';
+  marginTop: number; // in pt
+  marginBottom: number; // in pt
+}
+
 export interface DocumentConfig {
   h1: StyleConfig;
   h2: StyleConfig;
@@ -18,6 +25,7 @@ export interface DocumentConfig {
   quote: StyleConfig;
   code: StyleConfig;
   link: { color: string; underline: boolean };
+  img: ImageConfig;
 }
 
 export type ViewMode = 'editor' | 'preview' | 'split';

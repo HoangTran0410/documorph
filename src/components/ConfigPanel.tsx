@@ -1,19 +1,22 @@
 import React from "react";
-import { DocumentConfig, StyleConfig, FONTS } from "../types";
+import { DocumentConfig, StyleConfig, ImageConfig, FONTS } from "../types";
 import {
   Settings,
   Type,
+  Image,
   AlignLeft,
   AlignCenter,
   AlignRight,
   AlignJustify,
   ChevronDown,
   ChevronUp,
+  RotateCcw,
 } from "lucide-react";
 
 interface ConfigPanelProps {
   config: DocumentConfig;
   onChange: (newConfig: DocumentConfig) => void;
+  onReset: () => void;
 }
 
 const StyleEditor: React.FC<{
@@ -185,14 +188,121 @@ const StyleEditor: React.FC<{
   );
 };
 
-const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, onChange }) => {
+const ImageEditor: React.FC<{
+  label: string;
+  value: ImageConfig;
+  onChange: (val: ImageConfig) => void;
+}> = ({ label, value, onChange }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const update = (key: keyof ImageConfig, val: any) => {
+    onChange({ ...value, [key]: val });
+  };
+
+  return (
+    <div className="border border-gray-200 dark:border-slate-700 rounded-lg mb-3 overflow-hidden bg-white dark:bg-slate-800">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-800/50 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+      >
+        <span className="font-semibold text-sm flex items-center gap-2 text-slate-700 dark:text-slate-200">
+          <Image size={14} /> {label}
+        </span>
+        {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+      </button>
+
+      {isOpen && (
+        <div className="p-4 space-y-4">
+          {/* Max Width */}
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Max Width
+            </label>
+            <input
+              type="text"
+              value={value.maxWidth}
+              onChange={(e) => update("maxWidth", e.target.value)}
+              placeholder="e.g., 100%, 80%, 500px"
+              className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
+            />
+            <p className="text-xs text-slate-400 mt-1">
+              Examples: 100%, 80%, 500px, 300pt
+            </p>
+          </div>
+
+          {/* Alignment */}
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-2">
+              Alignment
+            </label>
+            <div className="flex bg-gray-100 dark:bg-slate-900 p-1 rounded-md">
+              {["left", "center", "right"].map((align) => (
+                <button
+                  key={align}
+                  onClick={() => update("alignment", align as 'left' | 'center' | 'right')}
+                  className={`flex-1 flex justify-center py-1.5 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 ${
+                    value.alignment === align
+                      ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400"
+                      : ""
+                  }`}
+                >
+                  {align === "left" && <AlignLeft size={14} />}
+                  {align === "center" && <AlignCenter size={14} />}
+                  {align === "right" && <AlignRight size={14} />}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Spacing */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">
+                Margin Top (pt)
+              </label>
+              <input
+                type="number"
+                value={value.marginTop}
+                onChange={(e) => update("marginTop", Number(e.target.value))}
+                className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">
+                Margin Bottom (pt)
+              </label>
+              <input
+                type="number"
+                value={value.marginBottom}
+                onChange={(e) => update("marginBottom", Number(e.target.value))}
+                className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, onChange, onReset }) => {
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-gray-200 dark:border-slate-800">
-      <div className="p-4 border-b border-gray-200 dark:border-slate-800 flex items-center gap-2">
-        <Settings className="text-blue-600" size={20} />
-        <h2 className="font-bold text-slate-800 dark:text-white">
-          Styles Config
-        </h2>
+      <div className="p-4 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Settings className="text-blue-600" size={20} />
+          <h2 className="font-bold text-slate-800 dark:text-white">
+            Styles Config
+          </h2>
+        </div>
+        <button
+          onClick={onReset}
+          className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded transition-colors"
+          title="Reset to default styles"
+        >
+          <RotateCcw size={14} />
+          RESET
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
@@ -226,6 +336,11 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, onChange }) => {
           value={config.code}
           onChange={(v) => onChange({ ...config, code: v })}
           hideFields={['color', 'bold', 'italic', 'alignment']}
+        />
+        <ImageEditor
+          label="Images"
+          value={config.img}
+          onChange={(v) => onChange({ ...config, img: v })}
         />
       </div>
     </div>
