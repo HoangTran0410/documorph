@@ -9,7 +9,6 @@ import {
   Loader2,
   PanelLeft,
   PanelRight,
-  Maximize2
 } from 'lucide-react';
 
 import { DocumentConfig } from './types';
@@ -19,17 +18,21 @@ import { parseMarkdownToHtml } from './services/markdownService';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
 import ConfigPanel from './components/ConfigPanel';
+import useCacheState from './hooks/useCacheState';
 
 function App() {
-  const [isDark, setIsDark] = useState(false);
-  const [content, setContent] = useState(DEFAULT_MARKDOWN);
-  const [config, setConfig] = useState<DocumentConfig>(DEFAULT_CONFIG);
+  const [isDark, setIsDark] = useCacheState('darkTheme', false);
+  const [content, setContent] = useCacheState('markdown', DEFAULT_MARKDOWN);
+  const [config, setConfig] = useCacheState<DocumentConfig>(
+    'config',
+    DEFAULT_CONFIG
+  );
   const [isExporting, setIsExporting] = useState<'word' | 'pdf' | null>(null);
 
   // Layout State
-  const [showEditor, setShowEditor] = useState(true);
-  const [showConfig, setShowConfig] = useState(true);
-  const [editorWidth, setEditorWidth] = useState(400);
+  const [showEditor, setShowEditor] = useCacheState('showEditor', true);
+  const [showConfig, setShowConfig] = useCacheState('showConfig', true);
+  const [editorWidth, setEditorWidth] = useCacheState('editorWidth', 400);
   const [isResizing, setIsResizing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -89,8 +92,8 @@ function App() {
       const blob = await generateDocxBlob(html, config);
       FileSaver.saveAs(blob, 'document.docx');
     } catch (error) {
-      console.error("Export failed", error);
-      alert("Failed to export DOCX");
+      console.error('Export failed', error);
+      alert('Failed to export DOCX');
     } finally {
       setIsExporting(null);
     }
@@ -117,10 +120,10 @@ function App() {
 
     // Get KaTeX CSS
     const katexCSS = Array.from(document.styleSheets)
-      .map(sheet => {
+      .map((sheet) => {
         try {
           return Array.from(sheet.cssRules)
-            .map(rule => rule.cssText)
+            .map((rule) => rule.cssText)
             .join('\n');
         } catch {
           return '';
@@ -188,16 +191,24 @@ function App() {
 
           {/* View Toggles */}
           <div className="flex items-center gap-1 ml-4 border-l border-gray-200 dark:border-slate-700 pl-4">
-            <button 
+            <button
               onClick={() => setShowEditor(!showEditor)}
-              className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors ${showEditor ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-slate-800' : 'text-slate-500'}`}
+              className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors ${
+                showEditor
+                  ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-slate-800'
+                  : 'text-slate-500'
+              }`}
               title="Toggle Editor"
             >
               <PanelLeft size={18} />
             </button>
-            <button 
+            <button
               onClick={() => setShowConfig(!showConfig)}
-              className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors ${showConfig ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-slate-800' : 'text-slate-500'}`}
+              className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors ${
+                showConfig
+                  ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-slate-800'
+                  : 'text-slate-500'
+              }`}
               title="Toggle Config"
             >
               <PanelRight size={18} />
@@ -206,44 +217,54 @@ function App() {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-           {/* Export Actions */}
-           <div className="flex bg-gray-100 dark:bg-slate-800 rounded-lg p-0.5 gap-0.5">
-             <button
-               onClick={handleExportWord}
-               disabled={!!isExporting}
-               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 shadow-sm transition-all disabled:opacity-50"
-             >
-               {isExporting === 'word' ? <Loader2 className="animate-spin" size={14}/> : <FileText size={14} className="text-blue-600" />}
-               DOCX
-             </button>
-             <button
-               onClick={handleExportPDF}
-               disabled={!!isExporting}
-               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 shadow-sm transition-all disabled:opacity-50"
-             >
-               {isExporting === 'pdf' ? <Loader2 className="animate-spin" size={14}/> : <File size={14} className="text-red-500" />}
-               PDF
-             </button>
-           </div>
+          {/* Export Actions */}
+          <div className="flex bg-gray-100 dark:bg-slate-800 rounded-lg p-0.5 gap-0.5">
+            <button
+              onClick={handleExportWord}
+              disabled={!!isExporting}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 shadow-sm transition-all disabled:opacity-50"
+            >
+              {isExporting === 'word' ? (
+                <Loader2 className="animate-spin" size={14} />
+              ) : (
+                <FileText size={14} className="text-blue-600" />
+              )}
+              DOCX
+            </button>
+            <button
+              onClick={handleExportPDF}
+              disabled={!!isExporting}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 shadow-sm transition-all disabled:opacity-50"
+            >
+              {isExporting === 'pdf' ? (
+                <Loader2 className="animate-spin" size={14} />
+              ) : (
+                <File size={14} className="text-red-500" />
+              )}
+              PDF
+            </button>
+          </div>
 
-           <div className="w-px h-6 bg-gray-200 dark:bg-slate-800 hidden sm:block"></div>
+          <div className="w-px h-6 bg-gray-200 dark:bg-slate-800 hidden sm:block"></div>
 
-           <button 
-             onClick={() => setIsDark(!isDark)}
-             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
-           >
-             {isDark ? <Sun size={18} /> : <Moon size={18} />}
-           </button>
+          <button
+            onClick={() => setIsDark(!isDark)}
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
         </div>
       </header>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
-        
         {/* Editor Pane */}
         {showEditor && (
-          <div 
-            style={{ width: isMobile ? '100%' : editorWidth, height: isMobile ? '40%' : '100%' }} 
+          <div
+            style={{
+              width: isMobile ? '100%' : editorWidth,
+              height: isMobile ? '40%' : '100%',
+            }}
             className="flex-shrink-0 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 dark:border-slate-800 z-10"
           >
             <Editor value={content} onChange={setContent} />
@@ -252,7 +273,7 @@ function App() {
 
         {/* Resizer Handle (Desktop Only) */}
         {showEditor && !isMobile && (
-          <div 
+          <div
             className="w-1 bg-gray-100 dark:bg-slate-900 hover:bg-blue-400 dark:hover:bg-blue-600 cursor-col-resize flex-shrink-0 transition-colors z-20 flex items-center justify-center group"
             onMouseDown={startResizing}
           >
@@ -267,19 +288,22 @@ function App() {
 
         {/* Right Sidebar - Configuration */}
         {showConfig && (
-          <div className={`
+          <div
+            className={`
             flex-shrink-0 bg-white dark:bg-slate-900 border-l border-gray-200 dark:border-slate-800 z-10 shadow-xl
             ${isMobile ? 'absolute inset-0 z-50' : 'w-80'}
-          `}>
-             {isMobile && (
-               <div className="p-2 border-b flex justify-end">
-                 <button onClick={() => setShowConfig(false)} className="p-2">Close</button>
-               </div>
-             )}
+          `}
+          >
+            {isMobile && (
+              <div className="p-2 border-b flex justify-end">
+                <button onClick={() => setShowConfig(false)} className="p-2">
+                  Close
+                </button>
+              </div>
+            )}
             <ConfigPanel config={config} onChange={setConfig} />
           </div>
         )}
-
       </div>
     </div>
   );
