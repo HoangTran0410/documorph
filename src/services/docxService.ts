@@ -221,6 +221,17 @@ const processInlineChildren = async (
       const isBold = tagName === 'strong' || tagName === 'b' || config.bold;
       const isItalic = tagName === 'em' || tagName === 'i' || config.italic;
       const isCode = tagName === 'code';
+      const isUnderline = tagName === 'u';
+
+      // Try to extract color from inline style
+      let textColor = config.color;
+      const styleAttr = el.getAttribute('style');
+      if (styleAttr) {
+        const colorMatch = styleAttr.match(/color:\s*#?([0-9a-fA-F]{6})/i);
+        if (colorMatch) {
+          textColor = colorMatch[1];
+        }
+      }
 
       const nestedChildren = await processInlineChildren(
         el,
@@ -228,8 +239,9 @@ const processInlineChildren = async (
           ...config,
           bold: isBold,
           italic: isItalic,
+          underline: isUnderline || config.underline,
           fontFamily: isCode ? 'Courier New' : config.fontFamily,
-          color: isCode ? 'D32F2F' : config.color,
+          color: isCode ? 'D32F2F' : textColor,
         },
         linkConfig
       );
@@ -238,6 +250,291 @@ const processInlineChildren = async (
     }
   }
   return children;
+};
+
+/**
+ * Process a single HTML element into DOCX paragraph(s)
+ * Returns array of DOCX elements (Paragraphs, Tables, etc.)
+ */
+const processElement = async (
+  element: HTMLElement,
+  config: DocumentConfig
+): Promise<any[]> => {
+  const docxElements: any[] = [];
+  const tagName = element.tagName.toLowerCase();
+
+  // Check if it's a Math Block (which we wrapped in a div with data-latex)
+  const rawLatex = element.getAttribute('data-latex');
+  if (rawLatex) {
+    const decodedLatex = decodeURIComponent(rawLatex);
+    const imageData = await renderLatexToImage(decodedLatex, true);
+
+    if (imageData) {
+      docxElements.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { before: 240, after: 240 },
+          children: [
+            new ImageRun({
+              data: imageData.buffer,
+              transformation: {
+                width: imageData.width,
+                height: imageData.height,
+              },
+            } as any),
+          ],
+        })
+      );
+    } else {
+      docxElements.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { before: 240, after: 240 },
+          children: [
+            new TextRun({
+              text: decodedLatex,
+              font: 'Cambria Math',
+              size: config.p.fontSize * 2 + 4,
+              italics: true,
+            }),
+          ],
+        })
+      );
+    }
+    return docxElements;
+  }
+
+  // 1. HEADINGS
+  if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
+    let style = config.h1;
+    let headingLevel = HeadingLevel.HEADING_1;
+
+    if (tagName === 'h2') {
+      style = config.h2;
+      headingLevel = HeadingLevel.HEADING_2;
+    } else if (tagName === 'h3') {
+      style = config.h3;
+      headingLevel = HeadingLevel.HEADING_3;
+    } else if (tagName === 'h4') {
+      style = config.h3;
+      headingLevel = HeadingLevel.HEADING_4;
+    } else if (tagName === 'h5') {
+      style = config.h3;
+      headingLevel = HeadingLevel.HEADING_5;
+    } else if (tagName === 'h6') {
+      style = config.h3;
+      headingLevel = HeadingLevel.HEADING_6;
+    }
+
+    const runs = await processInlineChildren(element, style, config.link);
+    docxElements.push(
+      new Paragraph({
+        heading: headingLevel,
+        alignment: mapAlignment(style.alignment),
+        spacing: {
+          before: style.marginTop * 20,
+          after: style.marginBottom * 20,
+        },
+        children: runs,
+      })
+    );
+    return docxElements;
+  }
+
+  // 2. PARAGRAPHS
+  if (tagName === 'p') {
+    const runs = await processInlineChildren(element, config.p, config.link);
+    if (runs.length > 0) {
+      docxElements.push(
+        new Paragraph({
+          alignment: mapAlignment(config.p.alignment),
+          spacing: {
+            before: config.p.marginTop * 20,
+            after: config.p.marginBottom * 20,
+          },
+          children: runs,
+        })
+      );
+    }
+    return docxElements;
+  }
+
+  // 3. BLOCKQUOTES
+  if (tagName === 'blockquote') {
+    const runs = await processInlineChildren(element, config.quote, config.link);
+    docxElements.push(
+      new Paragraph({
+        alignment: mapAlignment(config.quote.alignment),
+        spacing: {
+          before: config.quote.marginTop * 20,
+          after: config.quote.marginBottom * 20,
+        },
+        indent: { left: 720 },
+        border: {
+          left: {
+            color: 'auto',
+            space: 120,
+            style: BorderStyle.SINGLE,
+            size: 6,
+          },
+        },
+        children: runs,
+      })
+    );
+    return docxElements;
+  }
+
+  // 4. CODE BLOCKS (PRE)
+  if (tagName === 'pre') {
+    const codeText = element.textContent || '';
+    docxElements.push(
+      new Paragraph({
+        alignment: AlignmentType.LEFT,
+        spacing: {
+          before: config.code.marginTop * 20,
+          after: config.code.marginBottom * 20,
+        },
+        shading: { fill: 'F5F5F5' },
+        children: [
+          new TextRun({
+            text: codeText,
+            font: config.code.fontFamily,
+            size: config.code.fontSize * 2,
+            color: config.code.color.replace('#', ''),
+          }),
+        ],
+      })
+    );
+    return docxElements;
+  }
+
+  // 5. LISTS (UL/OL)
+  if (tagName === 'ul' || tagName === 'ol') {
+    const listItems = Array.from(element.children);
+    for (const li of listItems) {
+      const runs = await processInlineChildren(li, config.p, config.link);
+      docxElements.push(
+        new Paragraph({
+          alignment: mapAlignment(config.p.alignment),
+          spacing: { before: 100, after: 100 },
+          bullet: { level: 0 },
+          children: runs,
+        })
+      );
+    }
+    return docxElements;
+  }
+
+  // 6. TABLES
+  if (tagName === 'table') {
+    const rows = Array.from(element.querySelectorAll('tr'));
+    const docxRows = await Promise.all(
+      rows.map(async (tr) => {
+        const cells = Array.from(tr.querySelectorAll('th, td'));
+        const docxCells = await Promise.all(
+          cells.map(async (td) => {
+            const isHeader = td.tagName.toLowerCase() === 'th';
+            const style = isHeader ? { ...config.p, bold: true } : config.p;
+            const runs = await processInlineChildren(td, style, config.link);
+
+            return new TableCell({
+              children: [
+                new Paragraph({
+                  children: runs,
+                  alignment: isHeader ? AlignmentType.CENTER : AlignmentType.LEFT,
+                }),
+              ],
+              width: { size: 100 / cells.length, type: WidthType.PERCENTAGE },
+              shading: isHeader ? { fill: 'E0E0E0' } : undefined,
+            });
+          })
+        );
+        return new TableRow({ children: docxCells });
+      })
+    );
+
+    docxElements.push(
+      new Table({
+        rows: docxRows,
+        width: { size: 100, type: WidthType.PERCENTAGE },
+      })
+    );
+    docxElements.push(new Paragraph({ spacing: { before: 240 } }));
+    return docxElements;
+  }
+
+  // 7. HR
+  if (tagName === 'hr') {
+    docxElements.push(
+      new Paragraph({
+        border: {
+          bottom: {
+            color: 'auto',
+            space: 1,
+            style: BorderStyle.SINGLE,
+            size: 6,
+          },
+        },
+        spacing: { before: 240, after: 240 },
+      })
+    );
+    return docxElements;
+  }
+
+  // 8. IMAGES
+  if (tagName === 'img') {
+    const src = element.getAttribute('src');
+    if (src) {
+      const buffer = await fetchImage(src);
+      if (buffer) {
+        const dimensions = getImageDimensions(element);
+        docxElements.push(
+          new Paragraph({
+            children: [
+              new ImageRun({
+                data: new Uint8Array(buffer),
+                transformation: { width: dimensions.width, height: dimensions.height },
+              } as any),
+            ],
+          })
+        );
+      }
+    }
+    return docxElements;
+  }
+
+  // 9. DIV / SPAN / OTHER CONTAINER ELEMENTS
+  // Check if this element has direct text content (not just in children)
+  const hasDirectText = Array.from(element.childNodes).some(
+    (node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim()
+  );
+
+  if (hasDirectText) {
+    // This element has direct text content, treat it as a paragraph
+    const runs = await processInlineChildren(element, config.p, config.link);
+    if (runs.length > 0) {
+      docxElements.push(
+        new Paragraph({
+          alignment: mapAlignment(config.p.alignment),
+          spacing: {
+            before: config.p.marginTop * 20,
+            after: config.p.marginBottom * 20,
+          },
+          children: runs,
+        })
+      );
+    }
+  } else {
+    // This is a container element, recursively process its children
+    for (const child of Array.from(element.children)) {
+      if (child instanceof HTMLElement) {
+        const childElements = await processElement(child, config);
+        docxElements.push(...childElements);
+      }
+    }
+  }
+
+  return docxElements;
 };
 
 /**
@@ -256,233 +553,10 @@ export const generateDocxBlob = async (
   for (const node of nodes) {
     if (node.nodeType !== Node.ELEMENT_NODE) continue;
     const element = node as HTMLElement;
-    const tagName = element.tagName.toLowerCase();
 
-    // Check if it's a Math Block (which we wrapped in a div with data-latex)
-    const rawLatex = element.getAttribute('data-latex');
-    if (rawLatex) {
-      const decodedLatex = decodeURIComponent(rawLatex);
-      const imageData = await renderLatexToImage(decodedLatex, true);
-
-      if (imageData) {
-        docxChildren.push(
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 240, after: 240 },
-            children: [
-              new ImageRun({
-                data: imageData.buffer,
-                transformation: {
-                  width: imageData.width,
-                  height: imageData.height,
-                },
-              } as any),
-            ],
-          })
-        );
-      } else {
-        // Fallback to text if rendering fails
-        docxChildren.push(
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 240, after: 240 },
-            children: [
-              new TextRun({
-                text: decodedLatex,
-                font: 'Cambria Math',
-                size: config.p.fontSize * 2 + 4,
-                italics: true,
-              }),
-            ],
-          })
-        );
-      }
-      continue;
-    }
-
-    // 1. HEADINGS
-    if (['h1', 'h2', 'h3'].includes(tagName)) {
-      let style = config.h1;
-      let headingLevel = HeadingLevel.HEADING_1;
-      if (tagName === 'h2') {
-        style = config.h2;
-        headingLevel = HeadingLevel.HEADING_2;
-      }
-      if (tagName === 'h3') {
-        style = config.h3;
-        headingLevel = HeadingLevel.HEADING_3;
-      }
-
-      const runs = await processInlineChildren(element, style, config.link);
-
-      docxChildren.push(
-        new Paragraph({
-          heading: headingLevel,
-          alignment: mapAlignment(style.alignment),
-          spacing: {
-            before: style.marginTop * 20,
-            after: style.marginBottom * 20,
-          },
-          children: runs, // Note: No 'text' property here to avoid duplication
-        })
-      );
-    }
-    // 2. PARAGRAPHS
-    else if (tagName === 'p') {
-      const runs = await processInlineChildren(element, config.p, config.link);
-      // Only add if has content or is not just whitespace
-      if (runs.length > 0) {
-        docxChildren.push(
-          new Paragraph({
-            alignment: mapAlignment(config.p.alignment),
-            spacing: {
-              before: config.p.marginTop * 20,
-              after: config.p.marginBottom * 20,
-            },
-            children: runs,
-          })
-        );
-      }
-    }
-    // 3. BLOCKQUOTES
-    else if (tagName === 'blockquote') {
-      const runs = await processInlineChildren(
-        element,
-        config.quote,
-        config.link
-      );
-      docxChildren.push(
-        new Paragraph({
-          alignment: mapAlignment(config.quote.alignment),
-          spacing: {
-            before: config.quote.marginTop * 20,
-            after: config.quote.marginBottom * 20,
-          },
-          indent: { left: 720 }, // Indent ~0.5 inch
-          border: {
-            left: {
-              color: 'auto',
-              space: 120,
-              style: BorderStyle.SINGLE,
-              size: 6,
-            },
-          },
-          children: runs,
-        })
-      );
-    }
-    // 4. CODE BLOCKS (PRE)
-    else if (tagName === 'pre') {
-      const codeText = element.textContent || '';
-      docxChildren.push(
-        new Paragraph({
-          alignment: AlignmentType.LEFT,
-          spacing: {
-            before: config.code.marginTop * 20,
-            after: config.code.marginBottom * 20,
-          },
-          shading: { fill: 'F5F5F5' }, // Light gray background
-          children: [
-            new TextRun({
-              text: codeText,
-              font: config.code.fontFamily,
-              size: config.code.fontSize * 2,
-              color: config.code.color.replace('#', ''),
-            }),
-          ],
-        })
-      );
-    }
-    // 5. LISTS (UL/OL)
-    else if (tagName === 'ul' || tagName === 'ol') {
-      const listItems = Array.from(element.children);
-      for (const li of listItems) {
-        const runs = await processInlineChildren(li, config.p, config.link);
-        docxChildren.push(
-          new Paragraph({
-            alignment: mapAlignment(config.p.alignment),
-            spacing: { before: 100, after: 100 },
-            bullet: { level: 0 }, // Simple bullet list support
-            children: runs,
-          })
-        );
-      }
-    }
-    // 6. TABLES
-    else if (tagName === 'table') {
-      const rows = Array.from(element.querySelectorAll('tr'));
-      const docxRows = await Promise.all(
-        rows.map(async (tr) => {
-          const cells = Array.from(tr.querySelectorAll('th, td'));
-          const docxCells = await Promise.all(
-            cells.map(async (td) => {
-              const isHeader = td.tagName.toLowerCase() === 'th';
-              const style = isHeader ? { ...config.p, bold: true } : config.p;
-              const runs = await processInlineChildren(td, style, config.link);
-
-              return new TableCell({
-                children: [
-                  new Paragraph({
-                    children: runs,
-                    alignment: isHeader
-                      ? AlignmentType.CENTER
-                      : AlignmentType.LEFT,
-                  }),
-                ],
-                width: { size: 100 / cells.length, type: WidthType.PERCENTAGE },
-                shading: isHeader ? { fill: 'E0E0E0' } : undefined,
-              });
-            })
-          );
-          return new TableRow({ children: docxCells });
-        })
-      );
-
-      docxChildren.push(
-        new Table({
-          rows: docxRows,
-          width: { size: 100, type: WidthType.PERCENTAGE },
-        })
-      );
-      // Add some spacing after table
-      docxChildren.push(new Paragraph({ spacing: { before: 240 } }));
-    }
-    // 7. HR
-    else if (tagName === 'hr') {
-      docxChildren.push(
-        new Paragraph({
-          border: {
-            bottom: {
-              color: 'auto',
-              space: 1,
-              style: BorderStyle.SINGLE,
-              size: 6,
-            },
-          },
-          spacing: { before: 240, after: 240 },
-        })
-      );
-    }
-    // 8. TOP LEVEL IMAGES (if direct child of body, rare in p-wrapped markdown but possible)
-    else if (tagName === 'img') {
-      const src = element.getAttribute('src');
-      if (src) {
-        const buffer = await fetchImage(src);
-        if (buffer) {
-          const dimensions = getImageDimensions(element);
-          docxChildren.push(
-            new Paragraph({
-              children: [
-                new ImageRun({
-                  data: new Uint8Array(buffer),
-                  transformation: { width: dimensions.width, height: dimensions.height },
-                } as any),
-              ],
-            })
-          );
-        }
-      }
-    }
+    // Use the new recursive processing function
+    const elements = await processElement(element, config);
+    docxChildren.push(...elements);
   }
 
   const docx = new Document({
@@ -491,3 +565,4 @@ export const generateDocxBlob = async (
 
   return await Packer.toBlob(docx);
 };
+
