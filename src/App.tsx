@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import FileSaver from 'file-saver';
-import html2pdf from 'html2pdf.js';
-import { 
-  Moon, 
-  Sun, 
-  FileText, 
-  File, 
+import {
+  Moon,
+  Sun,
+  FileText,
+  File,
   LayoutTemplate,
   Loader2,
   PanelLeft,
@@ -99,22 +98,80 @@ function App() {
 
   const handleExportPDF = () => {
     setIsExporting('pdf');
-    const element = document.getElementById('print-container');
-    if (!element) return;
 
-    // Use html2pdf options for better pagination handling
-    const opt = {
-      margin: [10, 10] as [number, number], // mm
-      filename: 'document.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
-
-    html2pdf().set(opt).from(element).save().then(() => {
+    // Use browser's native print-to-PDF for selectable text
+    // Create a print-friendly version
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow popups to export PDF');
       setIsExporting(null);
-    });
+      return;
+    }
+
+    const element = document.getElementById('print-container');
+    if (!element) {
+      printWindow.close();
+      setIsExporting(null);
+      return;
+    }
+
+    // Get KaTeX CSS
+    const katexCSS = Array.from(document.styleSheets)
+      .map(sheet => {
+        try {
+          return Array.from(sheet.cssRules)
+            .map(rule => rule.cssText)
+            .join('\n');
+        } catch {
+          return '';
+        }
+      })
+      .join('\n');
+
+    // Create print document
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Document</title>
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+          <style>
+            @page {
+              margin: 20mm;
+              size: A4;
+            }
+            body {
+              margin: 0;
+              padding: 20px;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+              line-height: 1.6;
+              color: #000;
+            }
+            * {
+              print-color-adjust: exact;
+              -webkit-print-color-adjust: exact;
+            }
+            ${katexCSS}
+          </style>
+        </head>
+        <body>
+          ${element.innerHTML}
+          <script>
+            window.onload = () => {
+              setTimeout(() => {
+                window.print();
+                window.close();
+              }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+
+    // Reset export state after a delay
+    setTimeout(() => setIsExporting(null), 1000);
   };
 
   return (
