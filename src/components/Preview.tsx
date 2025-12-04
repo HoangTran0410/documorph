@@ -1,6 +1,6 @@
-import React, { useRef } from "react";
-import { DocumentConfig } from "../types";
-import { parseMarkdownToHtml } from "../services/markdownService";
+import React, { useRef } from 'react';
+import { DocumentConfig } from '../types';
+import { parseMarkdownToHtml } from '../services/markdownService';
 
 interface PreviewProps {
   content: string;
@@ -8,7 +8,7 @@ interface PreviewProps {
 }
 
 const Preview: React.FC<PreviewProps> = ({ content, config }) => {
-  const [html, setHtml] = React.useState("");
+  const [html, setHtml] = React.useState('');
   const containerRef = useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -38,12 +38,12 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
           id="print-container"
           className="bg-white text-black shadow-xl transition-all ease-in-out duration-300 relative mx-auto"
           style={{
-            width: "210mm",
-            minHeight: "297mm", // Starts at A4 height but expands
-            height: "fit-content",
-            padding: "15mm", // Reduced padding as requested
-            boxSizing: "border-box",
-            marginBottom: "2rem",
+            width: '210mm',
+            minHeight: '297mm', // Starts at A4 height but expands
+            height: 'fit-content',
+            padding: '15mm', // Reduced padding as requested
+            boxSizing: 'border-box',
+            marginBottom: '2rem',
           }}
         >
           <style>
@@ -53,8 +53,8 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
                   font-family: ${config.h1.fontFamily};
                   font-size: ${config.h1.fontSize}pt;
                   color: ${config.h1.color};
-                  font-weight: ${config.h1.bold ? "bold" : "normal"};
-                  font-style: ${config.h1.italic ? "italic" : "normal"};
+                  font-weight: ${config.h1.bold ? 'bold' : 'normal'};
+                  font-style: ${config.h1.italic ? 'italic' : 'normal'};
                   text-align: ${config.h1.alignment};
                   margin-top: ${config.h1.marginTop}pt;
                   margin-bottom: ${config.h1.marginBottom}pt;
@@ -63,8 +63,8 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
                   font-family: ${config.h2.fontFamily};
                   font-size: ${config.h2.fontSize}pt;
                   color: ${config.h2.color};
-                  font-weight: ${config.h2.bold ? "bold" : "normal"};
-                  font-style: ${config.h2.italic ? "italic" : "normal"};
+                  font-weight: ${config.h2.bold ? 'bold' : 'normal'};
+                  font-style: ${config.h2.italic ? 'italic' : 'normal'};
                   text-align: ${config.h2.alignment};
                   margin-top: ${config.h2.marginTop}pt;
                   margin-bottom: ${config.h2.marginBottom}pt;
@@ -73,8 +73,8 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
                   font-family: ${config.h3.fontFamily};
                   font-size: ${config.h3.fontSize}pt;
                   color: ${config.h3.color};
-                  font-weight: ${config.h3.bold ? "bold" : "normal"};
-                  font-style: ${config.h3.italic ? "italic" : "normal"};
+                  font-weight: ${config.h3.bold ? 'bold' : 'normal'};
+                  font-style: ${config.h3.italic ? 'italic' : 'normal'};
                   text-align: ${config.h3.alignment};
                   margin-top: ${config.h3.marginTop}pt;
                   margin-bottom: ${config.h3.marginBottom}pt;
@@ -85,8 +85,8 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
                   font-family: ${config.p.fontFamily};
                   font-size: ${config.p.fontSize}pt;
                   color: ${config.p.color};
-                  font-weight: ${config.p.bold ? "bold" : "normal"};
-                  font-style: ${config.p.italic ? "italic" : "normal"};
+                  font-weight: ${config.p.bold ? 'bold' : 'normal'};
+                  font-style: ${config.p.italic ? 'italic' : 'normal'};
                   text-align: ${config.p.alignment};
                   line-height: 1.5;
                 }
@@ -99,7 +99,7 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
                 #preview-content a {
                   color: ${config.link.color};
                   text-decoration: ${
-                    config.link.underline ? "underline" : "none"
+                    config.link.underline ? 'underline' : 'none'
                   };
                 }
 
@@ -117,8 +117,8 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
                   font-family: ${config.quote.fontFamily};
                   font-size: ${config.quote.fontSize}pt;
                   color: ${config.quote.color};
-                  font-weight: ${config.quote.bold ? "bold" : "normal"};
-                  font-style: ${config.quote.italic ? "italic" : "normal"};
+                  font-weight: ${config.quote.bold ? 'bold' : 'normal'};
+                  font-style: ${config.quote.italic ? 'italic' : 'normal'};
                   text-align: ${config.quote.alignment};
                   margin-top: ${config.quote.marginTop}pt;
                   margin-bottom: ${config.quote.marginBottom}pt;
@@ -127,22 +127,54 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
                   margin-left: 0;
                 }
 
-                /* Code */
-                #preview-content pre {
-                  background: #f5f5f5;
-                  padding: 10pt;
-                  border-radius: 4px;
-                  margin: ${config.code.marginTop}pt 0 ${
-              config.code.marginBottom
-            }pt 0;
-                  white-space: pre-wrap;
-                  word-break: break-all;
-                }
-                #preview-content code {
+                /* Code - Inline code only (not syntax highlighted blocks) */
+                #preview-content :not(pre) > code {
                   font-family: ${config.code.fontFamily};
                   color: ${config.code.color};
                   font-size: ${config.code.fontSize}pt;
+                  background: #f5f5f5;
+                  padding: 2px 6px;
+                  border-radius: 3px;
                 }
+
+                /* Code Blocks - Syntax Highlighted */
+                #preview-content pre {
+                  margin: ${config.code.marginTop}pt 0 ${
+              config.code.marginBottom
+            }pt 0;
+                  border-radius: 6px;
+                  overflow-x: auto;
+                }
+
+                #preview-content pre code.hljs {
+                  font-family: ${config.code.fontFamily};
+                  font-size: ${config.code.fontSize}pt;
+                  display: block;
+                  padding: 12pt;
+                  border-radius: 6px;
+                  line-height: 1.5;
+                  background: #f6f8fa !important;
+                }
+
+                /* Syntax highlighting colors */
+                #preview-content .hljs-keyword { color: #d73a49 !important; }
+                #preview-content .hljs-string { color: #032f62 !important; }
+                #preview-content .hljs-comment { color: #6a737d !important; }
+                #preview-content .hljs-number { color: #005cc5 !important; }
+                #preview-content .hljs-function { color: #6f42c1 !important; }
+                #preview-content .hljs-title { color: #6f42c1 !important; }
+                #preview-content .hljs-params { color: #24292e !important; }
+                #preview-content .hljs-built_in { color: #005cc5 !important; }
+                #preview-content .hljs-literal { color: #005cc5 !important; }
+                #preview-content .hljs-attr { color: #005cc5 !important; }
+                #preview-content .hljs-variable { color: #e36209 !important; }
+                #preview-content .hljs-tag { color: #22863a !important; }
+                #preview-content .hljs-name { color: #22863a !important; }
+                #preview-content .hljs-regexp { color: #032f62 !important; }
+                #preview-content .hljs-symbol { color: #005cc5 !important; }
+                #preview-content .hljs-class { color: #6f42c1 !important; }
+                #preview-content .hljs-meta { color: #005cc5 !important; }
+                #preview-content .hljs-operator { color: #d73a49 !important; }
 
                 /* Tables */
                 #preview-content table {

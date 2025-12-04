@@ -1,10 +1,30 @@
-import { marked } from 'marked';
+import { marked, Renderer } from 'marked';
 import katex from 'katex';
+import hljs from 'highlight.js';
 
 type MathBlock = {
   type: 'block' | 'inline';
   tex: string;
 };
+
+// Configure marked with custom renderer for code syntax highlighting
+const renderer = new Renderer();
+renderer.code = ({ text, lang }: { text: string; lang?: string }) => {
+  if (lang && hljs.getLanguage(lang)) {
+    try {
+      const highlighted = hljs.highlight(text, { language: lang }).value;
+      return `<pre><code class="hljs language-${lang}">${highlighted}</code></pre>`;
+    } catch (err) {
+      console.error('Highlight error:', err);
+    }
+  }
+  const highlighted = hljs.highlightAuto(text).value;
+  return `<pre><code class="hljs">${highlighted}</code></pre>`;
+};
+
+marked.setOptions({
+  renderer: renderer
+});
 
 /**
  * Parses markdown content into HTML with support for LaTeX math equations.

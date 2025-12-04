@@ -7,6 +7,8 @@ This document outlines the architecture for **DocuMorph**, a client-side tool fo
 
 ![Abstract Architecture](https://avatars.githubusercontent.com/u/36368107)
 
+[This is a link](https://google.com)
+
 ### Key Features
 * Real-time preview
 * Customizable styling
