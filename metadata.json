@@ -1,0 +1,5 @@
+{
+  "name": "DocuMorph",
+  "description": "A sophisticated client-side Markdown & HTML to Word/PDF converter. Customize your document styles, preview changes in real-time, and export with structure-aware rendering.",
+  "requestFramePermissions": []
+}

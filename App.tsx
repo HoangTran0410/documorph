@@ -1,0 +1,231 @@
+import React, { useState, useEffect } from 'react';
+import FileSaver from 'file-saver';
+import html2pdf from 'html2pdf.js';
+import { 
+  Moon, 
+  Sun, 
+  FileText, 
+  File, 
+  LayoutTemplate,
+  Loader2,
+  PanelLeft,
+  PanelRight,
+  Maximize2
+} from 'lucide-react';
+
+import { DocumentConfig } from './types';
+import { DEFAULT_CONFIG, DEFAULT_MARKDOWN } from './constants';
+import { generateDocxBlob } from './services/docxService';
+import { parseMarkdownToHtml } from './services/markdownService';
+import Editor from './components/Editor';
+import Preview from './components/Preview';
+import ConfigPanel from './components/ConfigPanel';
+
+function App() {
+  const [isDark, setIsDark] = useState(false);
+  const [content, setContent] = useState(DEFAULT_MARKDOWN);
+  const [config, setConfig] = useState<DocumentConfig>(DEFAULT_CONFIG);
+  const [isExporting, setIsExporting] = useState<'word' | 'pdf' | null>(null);
+
+  // Layout State
+  const [showEditor, setShowEditor] = useState(true);
+  const [showConfig, setShowConfig] = useState(true);
+  const [editorWidth, setEditorWidth] = useState(400);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Toggle Dark Mode
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDark]);
+
+  // Resizing Logic
+  const startResizing = React.useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isResizing) {
+        const newWidth = Math.max(250, Math.min(e.clientX, 800));
+        setEditorWidth(newWidth);
+      }
+    };
+    const handleMouseUp = () => setIsResizing(false);
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    } else {
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
+
+  const handleExportWord = async () => {
+    try {
+      setIsExporting('word');
+      // Use the custom parser that handles math logic
+      const html = await parseMarkdownToHtml(content);
+      const blob = await generateDocxBlob(html, config);
+      FileSaver.saveAs(blob, 'document.docx');
+    } catch (error) {
+      console.error("Export failed", error);
+      alert("Failed to export DOCX");
+    } finally {
+      setIsExporting(null);
+    }
+  };
+
+  const handleExportPDF = () => {
+    setIsExporting('pdf');
+    const element = document.getElementById('print-container');
+    if (!element) return;
+
+    // Use html2pdf options for better pagination handling
+    const opt = {
+      margin: [10, 10] as [number, number], // mm
+      filename: 'document.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      setIsExporting(null);
+    });
+  };
+
+  return (
+    <div className="h-screen flex flex-col font-sans overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+      {/* Header */}
+      <header className="h-14 flex items-center justify-between px-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 z-20 shrink-0 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-600 p-1.5 rounded-lg">
+            <LayoutTemplate className="text-white" size={18} />
+          </div>
+          <h1 className="text-lg font-bold tracking-tight hidden sm:block">
+            Docu<span className="text-blue-500">Morph</span>
+          </h1>
+
+          {/* View Toggles */}
+          <div className="flex items-center gap-1 ml-4 border-l border-gray-200 dark:border-slate-700 pl-4">
+            <button 
+              onClick={() => setShowEditor(!showEditor)}
+              className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors ${showEditor ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-slate-800' : 'text-slate-500'}`}
+              title="Toggle Editor"
+            >
+              <PanelLeft size={18} />
+            </button>
+            <button 
+              onClick={() => setShowConfig(!showConfig)}
+              className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors ${showConfig ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-slate-800' : 'text-slate-500'}`}
+              title="Toggle Config"
+            >
+              <PanelRight size={18} />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-4">
+           {/* Export Actions */}
+           <div className="flex bg-gray-100 dark:bg-slate-800 rounded-lg p-0.5 gap-0.5">
+             <button
+               onClick={handleExportWord}
+               disabled={!!isExporting}
+               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 shadow-sm transition-all disabled:opacity-50"
+             >
+               {isExporting === 'word' ? <Loader2 className="animate-spin" size={14}/> : <FileText size={14} className="text-blue-600" />}
+               DOCX
+             </button>
+             <button
+               onClick={handleExportPDF}
+               disabled={!!isExporting}
+               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 shadow-sm transition-all disabled:opacity-50"
+             >
+               {isExporting === 'pdf' ? <Loader2 className="animate-spin" size={14}/> : <File size={14} className="text-red-500" />}
+               PDF
+             </button>
+           </div>
+
+           <div className="w-px h-6 bg-gray-200 dark:bg-slate-800 hidden sm:block"></div>
+
+           <button 
+             onClick={() => setIsDark(!isDark)}
+             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
+           >
+             {isDark ? <Sun size={18} /> : <Moon size={18} />}
+           </button>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        
+        {/* Editor Pane */}
+        {showEditor && (
+          <div 
+            style={{ width: isMobile ? '100%' : editorWidth, height: isMobile ? '40%' : '100%' }} 
+            className="flex-shrink-0 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 dark:border-slate-800 z-10"
+          >
+            <Editor value={content} onChange={setContent} />
+          </div>
+        )}
+
+        {/* Resizer Handle (Desktop Only) */}
+        {showEditor && !isMobile && (
+          <div 
+            className="w-1 bg-gray-100 dark:bg-slate-900 hover:bg-blue-400 dark:hover:bg-blue-600 cursor-col-resize flex-shrink-0 transition-colors z-20 flex items-center justify-center group"
+            onMouseDown={startResizing}
+          >
+            <div className="h-8 w-0.5 bg-gray-300 dark:bg-slate-700 group-hover:bg-white rounded-full" />
+          </div>
+        )}
+
+        {/* Preview Pane */}
+        <div className="flex-1 bg-gray-100 dark:bg-slate-950/50 flex flex-col relative overflow-hidden">
+          <Preview content={content} config={config} />
+        </div>
+
+        {/* Right Sidebar - Configuration */}
+        {showConfig && (
+          <div className={`
+            flex-shrink-0 bg-white dark:bg-slate-900 border-l border-gray-200 dark:border-slate-800 z-10 shadow-xl
+            ${isMobile ? 'absolute inset-0 z-50' : 'w-80'}
+          `}>
+             {isMobile && (
+               <div className="p-2 border-b flex justify-end">
+                 <button onClick={() => setShowConfig(false)} className="p-2">Close</button>
+               </div>
+             )}
+            <ConfigPanel config={config} onChange={setConfig} />
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+export default App;
