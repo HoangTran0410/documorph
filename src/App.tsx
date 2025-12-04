@@ -268,7 +268,11 @@ function App() {
             }}
             className="flex-shrink-0 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 dark:border-slate-800 z-10"
           >
-            <Editor value={content} onChange={setContent} />
+            <Editor
+              value={content}
+              onChange={setContent}
+              onReset={() => setContent(DEFAULT_MARKDOWN)}
+            />
           </div>
         )}
 

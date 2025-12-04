@@ -20,12 +20,15 @@ const StyleEditor: React.FC<{
   label: string;
   value: StyleConfig;
   onChange: (val: StyleConfig) => void;
-}> = ({ label, value, onChange }) => {
+  hideFields?: Array<'color' | 'bold' | 'italic' | 'alignment'>;
+}> = ({ label, value, onChange, hideFields = [] }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const update = (key: keyof StyleConfig, val: any) => {
     onChange({ ...value, [key]: val });
   };
+
+  const shouldHide = (field: string) => hideFields.includes(field as any);
 
   return (
     <div className="border border-gray-200 dark:border-slate-700 rounded-lg mb-3 overflow-hidden bg-white dark:bg-slate-800">
@@ -73,71 +76,83 @@ const StyleEditor: React.FC<{
           </div>
 
           {/* Color & Styles */}
-          <div className="flex items-end gap-3">
-            <div className="flex-1">
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Color
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={value.color}
-                  onChange={(e) => update("color", e.target.value)}
-                  className="h-8 w-8 rounded cursor-pointer border-0 bg-transparent p-0"
-                />
-                <span className="text-xs font-mono text-slate-400">
-                  {value.color}
-                </span>
-              </div>
+          {(!shouldHide('color') || !shouldHide('bold') || !shouldHide('italic')) && (
+            <div className="flex items-end gap-3">
+              {!shouldHide('color') && (
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                    Color
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={value.color}
+                      onChange={(e) => update("color", e.target.value)}
+                      className="h-8 w-8 rounded cursor-pointer border-0 bg-transparent p-0"
+                    />
+                    <span className="text-xs font-mono text-slate-400">
+                      {value.color}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {(!shouldHide('bold') || !shouldHide('italic')) && (
+                <div className="flex gap-1">
+                  {!shouldHide('bold') && (
+                    <button
+                      onClick={() => update("bold", !value.bold)}
+                      className={`p-2 rounded border ${
+                        value.bold
+                          ? "bg-blue-100 border-blue-300 text-blue-700"
+                          : "bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-slate-700 dark:text-slate-200"
+                      }`}
+                    >
+                      B
+                    </button>
+                  )}
+                  {!shouldHide('italic') && (
+                    <button
+                      onClick={() => update("italic", !value.italic)}
+                      className={`p-2 rounded border italic ${
+                        value.italic
+                          ? "bg-blue-100 border-blue-300 text-blue-700"
+                          : "bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-slate-700 dark:text-slate-200"
+                      }`}
+                    >
+                      I
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="flex gap-1">
-              <button
-                onClick={() => update("bold", !value.bold)}
-                className={`p-2 rounded border ${
-                  value.bold
-                    ? "bg-blue-100 border-blue-300 text-blue-700"
-                    : "bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-slate-700 dark:text-slate-200"
-                }`}
-              >
-                B
-              </button>
-              <button
-                onClick={() => update("italic", !value.italic)}
-                className={`p-2 rounded border italic ${
-                  value.italic
-                    ? "bg-blue-100 border-blue-300 text-blue-700"
-                    : "bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-slate-700 dark:text-slate-200"
-                }`}
-              >
-                I
-              </button>
-            </div>
-          </div>
+          )}
 
           {/* Alignment */}
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-2">
-              Alignment
-            </label>
-            <div className="flex bg-gray-100 dark:bg-slate-900 p-1 rounded-md">
-              {["left", "center", "right", "justify"].map((align) => (
-                <button
-                  key={align}
-                  onClick={() => update("alignment", align)}
-                  className={`flex-1 flex justify-center py-1.5 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 ${
-                    value.alignment === align
-                      ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400"
-                      : ""
-                  }`}
-                >
-                  {align === "left" && <AlignLeft size={14} />}
-                  {align === "center" && <AlignCenter size={14} />}
-                  {align === "right" && <AlignRight size={14} />}
-                  {align === "justify" && <AlignJustify size={14} />}
-                </button>
-              ))}
+          {!shouldHide('alignment') && (
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-2">
+                Alignment
+              </label>
+              <div className="flex bg-gray-100 dark:bg-slate-900 p-1 rounded-md">
+                {["left", "center", "right", "justify"].map((align) => (
+                  <button
+                    key={align}
+                    onClick={() => update("alignment", align)}
+                    className={`flex-1 flex justify-center py-1.5 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 ${
+                      value.alignment === align
+                        ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400"
+                        : ""
+                    }`}
+                  >
+                    {align === "left" && <AlignLeft size={14} />}
+                    {align === "center" && <AlignCenter size={14} />}
+                    {align === "right" && <AlignRight size={14} />}
+                    {align === "justify" && <AlignJustify size={14} />}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Spacing */}
           <div className="grid grid-cols-2 gap-3">
@@ -210,6 +225,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, onChange }) => {
           label="Code Blocks"
           value={config.code}
           onChange={(v) => onChange({ ...config, code: v })}
+          hideFields={['color', 'bold', 'italic', 'alignment']}
         />
       </div>
     </div>
