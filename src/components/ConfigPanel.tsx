@@ -1,5 +1,5 @@
-import React from "react";
-import { DocumentConfig, StyleConfig, ImageConfig, FONTS } from "../types";
+import React from 'react';
+import { DocumentConfig, StyleConfig, ImageConfig, FONTS } from '../types';
 import {
   Settings,
   Type,
@@ -11,7 +11,8 @@ import {
   ChevronDown,
   ChevronUp,
   RotateCcw,
-} from "lucide-react";
+  X,
+} from 'lucide-react';
 
 interface ConfigPanelProps {
   config: DocumentConfig;
@@ -45,145 +46,150 @@ const StyleEditor: React.FC<{
         {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
       </button>
 
-      {isOpen && (
-        <div className="p-4 space-y-4">
-          {/* Font & Size */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Font Family
-              </label>
-              <select
-                value={value.fontFamily}
-                onChange={(e) => update("fontFamily", e.target.value)}
-                className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
-              >
-                {FONTS.map((f) => (
-                  <option key={f.value} value={f.value}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Size (pt)
-              </label>
-              <input
-                type="number"
-                value={value.fontSize}
-                onChange={(e) => update("fontSize", Number(e.target.value))}
-                className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
-              />
-            </div>
+      <div
+        className={
+          'space-y-4 transition-all overflow-hidden ' + (isOpen ? 'p-4' : '')
+        }
+        style={{ maxHeight: isOpen ? '300px' : '0' }}
+      >
+        {/* Font & Size */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Font Family
+            </label>
+            <select
+              value={value.fontFamily}
+              onChange={(e) => update('fontFamily', e.target.value)}
+              className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
+            >
+              {FONTS.map((f) => (
+                <option key={f.value} value={f.value}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
           </div>
-
-          {/* Color & Styles */}
-          {(!shouldHide('color') || !shouldHide('bold') || !shouldHide('italic')) && (
-            <div className="flex items-end gap-3">
-              {!shouldHide('color') && (
-                <div className="flex-1">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">
-                    Color
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={value.color}
-                      onChange={(e) => update("color", e.target.value)}
-                      className="h-8 w-8 rounded cursor-pointer border-0 bg-transparent p-0"
-                    />
-                    <span className="text-xs font-mono text-slate-400">
-                      {value.color}
-                    </span>
-                  </div>
-                </div>
-              )}
-              {(!shouldHide('bold') || !shouldHide('italic')) && (
-                <div className="flex gap-1">
-                  {!shouldHide('bold') && (
-                    <button
-                      onClick={() => update("bold", !value.bold)}
-                      className={`p-2 rounded border ${
-                        value.bold
-                          ? "bg-blue-100 border-blue-300 text-blue-700"
-                          : "bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-slate-700 dark:text-slate-200"
-                      }`}
-                    >
-                      B
-                    </button>
-                  )}
-                  {!shouldHide('italic') && (
-                    <button
-                      onClick={() => update("italic", !value.italic)}
-                      className={`p-2 rounded border italic ${
-                        value.italic
-                          ? "bg-blue-100 border-blue-300 text-blue-700"
-                          : "bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-slate-700 dark:text-slate-200"
-                      }`}
-                    >
-                      I
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Alignment */}
-          {!shouldHide('alignment') && (
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-2">
-                Alignment
-              </label>
-              <div className="flex bg-gray-100 dark:bg-slate-900 p-1 rounded-md">
-                {["left", "center", "right", "justify"].map((align) => (
-                  <button
-                    key={align}
-                    onClick={() => update("alignment", align)}
-                    className={`flex-1 flex justify-center py-1.5 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 ${
-                      value.alignment === align
-                        ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400"
-                        : ""
-                    }`}
-                  >
-                    {align === "left" && <AlignLeft size={14} />}
-                    {align === "center" && <AlignCenter size={14} />}
-                    {align === "right" && <AlignRight size={14} />}
-                    {align === "justify" && <AlignJustify size={14} />}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Spacing */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Margin Top (pt)
-              </label>
-              <input
-                type="number"
-                value={value.marginTop}
-                onChange={(e) => update("marginTop", Number(e.target.value))}
-                className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Margin Bottom (pt)
-              </label>
-              <input
-                type="number"
-                value={value.marginBottom}
-                onChange={(e) => update("marginBottom", Number(e.target.value))}
-                className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Size (pt)
+            </label>
+            <input
+              type="number"
+              value={value.fontSize}
+              onChange={(e) => update('fontSize', Number(e.target.value))}
+              className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
+            />
           </div>
         </div>
-      )}
+
+        {/* Color & Styles */}
+        {(!shouldHide('color') ||
+          !shouldHide('bold') ||
+          !shouldHide('italic')) && (
+          <div className="flex items-end gap-3">
+            {!shouldHide('color') && (
+              <div className="flex-1">
+                <label className="block text-xs font-medium text-slate-500 mb-1">
+                  Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={value.color}
+                    onChange={(e) => update('color', e.target.value)}
+                    className="h-8 w-8 rounded cursor-pointer border-0 bg-transparent p-0"
+                  />
+                  <span className="text-xs font-mono text-slate-400">
+                    {value.color}
+                  </span>
+                </div>
+              </div>
+            )}
+            {(!shouldHide('bold') || !shouldHide('italic')) && (
+              <div className="flex gap-1">
+                {!shouldHide('bold') && (
+                  <button
+                    onClick={() => update('bold', !value.bold)}
+                    className={`p-2 rounded border ${
+                      value.bold
+                        ? 'bg-blue-100 border-blue-300 text-blue-700'
+                        : 'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-slate-700 dark:text-slate-200'
+                    }`}
+                  >
+                    B
+                  </button>
+                )}
+                {!shouldHide('italic') && (
+                  <button
+                    onClick={() => update('italic', !value.italic)}
+                    className={`p-2 rounded border italic ${
+                      value.italic
+                        ? 'bg-blue-100 border-blue-300 text-blue-700'
+                        : 'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-slate-700 dark:text-slate-200'
+                    }`}
+                  >
+                    I
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Alignment */}
+        {!shouldHide('alignment') && (
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-2">
+              Alignment
+            </label>
+            <div className="flex bg-gray-100 dark:bg-slate-900 p-1 rounded-md">
+              {['left', 'center', 'right', 'justify'].map((align) => (
+                <button
+                  key={align}
+                  onClick={() => update('alignment', align)}
+                  className={`flex-1 flex justify-center py-1.5 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 ${
+                    value.alignment === align
+                      ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400'
+                      : ''
+                  }`}
+                >
+                  {align === 'left' && <AlignLeft size={14} />}
+                  {align === 'center' && <AlignCenter size={14} />}
+                  {align === 'right' && <AlignRight size={14} />}
+                  {align === 'justify' && <AlignJustify size={14} />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Spacing */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Margin Top (pt)
+            </label>
+            <input
+              type="number"
+              value={value.marginTop}
+              onChange={(e) => update('marginTop', Number(e.target.value))}
+              className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Margin Bottom (pt)
+            </label>
+            <input
+              type="number"
+              value={value.marginBottom}
+              onChange={(e) => update('marginBottom', Number(e.target.value))}
+              className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
@@ -211,98 +217,123 @@ const ImageEditor: React.FC<{
         {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
       </button>
 
-      {isOpen && (
-        <div className="p-4 space-y-4">
-          {/* Max Width */}
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">
-              Max Width
-            </label>
-            <input
-              type="text"
-              value={value.maxWidth}
-              onChange={(e) => update("maxWidth", e.target.value)}
-              placeholder="e.g., 100%, 80%, 500px"
-              className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
-            />
-            <p className="text-xs text-slate-400 mt-1">
-              Examples: 100%, 80%, 500px, 300pt
-            </p>
-          </div>
+      <div
+        className={
+          'transition-all overflow-hidden space-y-4' + (isOpen ? ' p-4' : '')
+        }
+        style={{ maxHeight: isOpen ? '300px' : '0' }}
+      >
+        {/* Max Width */}
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-1">
+            Max Width
+          </label>
+          <input
+            type="text"
+            value={value.maxWidth}
+            onChange={(e) => update('maxWidth', e.target.value)}
+            placeholder="e.g., 100%, 80%, 500px"
+            className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
+          />
+          <p className="text-xs text-slate-400 mt-1">
+            Examples: 100%, 80%, 500px, 300pt
+          </p>
+        </div>
 
-          {/* Alignment */}
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-2">
-              Alignment
-            </label>
-            <div className="flex bg-gray-100 dark:bg-slate-900 p-1 rounded-md">
-              {["left", "center", "right"].map((align) => (
-                <button
-                  key={align}
-                  onClick={() => update("alignment", align as 'left' | 'center' | 'right')}
-                  className={`flex-1 flex justify-center py-1.5 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 ${
-                    value.alignment === align
-                      ? "bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400"
-                      : ""
-                  }`}
-                >
-                  {align === "left" && <AlignLeft size={14} />}
-                  {align === "center" && <AlignCenter size={14} />}
-                  {align === "right" && <AlignRight size={14} />}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Spacing */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Margin Top (pt)
-              </label>
-              <input
-                type="number"
-                value={value.marginTop}
-                onChange={(e) => update("marginTop", Number(e.target.value))}
-                className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Margin Bottom (pt)
-              </label>
-              <input
-                type="number"
-                value={value.marginBottom}
-                onChange={(e) => update("marginBottom", Number(e.target.value))}
-                className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
-              />
-            </div>
+        {/* Alignment */}
+        <div>
+          <label className="block text-xs font-medium text-slate-500 mb-2">
+            Alignment
+          </label>
+          <div className="flex bg-gray-100 dark:bg-slate-900 p-1 rounded-md">
+            {['left', 'center', 'right'].map((align) => (
+              <button
+                key={align}
+                onClick={() =>
+                  update('alignment', align as 'left' | 'center' | 'right')
+                }
+                className={`flex-1 flex justify-center py-1.5 rounded text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 ${
+                  value.alignment === align
+                    ? 'bg-white dark:bg-slate-700 shadow-sm text-blue-600 dark:text-blue-400'
+                    : ''
+                }`}
+              >
+                {align === 'left' && <AlignLeft size={14} />}
+                {align === 'center' && <AlignCenter size={14} />}
+                {align === 'right' && <AlignRight size={14} />}
+              </button>
+            ))}
           </div>
         </div>
-      )}
+
+        {/* Spacing */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Margin Top (pt)
+            </label>
+            <input
+              type="number"
+              value={value.marginTop}
+              onChange={(e) => update('marginTop', Number(e.target.value))}
+              className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Margin Bottom (pt)
+            </label>
+            <input
+              type="number"
+              value={value.marginBottom}
+              onChange={(e) => update('marginBottom', Number(e.target.value))}
+              className="w-full text-xs p-2 rounded border bg-white text-slate-900 border-gray-200 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, onChange, onReset }) => {
+const ConfigPanel: React.FC<ConfigPanelProps> = ({
+  config,
+  onChange,
+  onReset,
+  onClose,
+  isMobile = false,
+}) => {
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900 border-l border-gray-200 dark:border-slate-800">
-      <div className="p-4 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
+      <div className="p-2 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Settings className="text-blue-600" size={20} />
           <h2 className="font-bold text-slate-800 dark:text-white">
             Styles Config
           </h2>
         </div>
-        <button
-          onClick={onReset}
-          className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded transition-colors"
-          title="Reset to default styles"
-        >
-          <RotateCcw size={14} />
-          RESET
-        </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onReset}
+            className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded transition-colors"
+            title="Reset to default styles"
+          >
+            <RotateCcw size={14} />
+            RESET
+          </button>
+
+          {/* close button */}
+          {isMobile && (
+            <button
+              onClick={onClose}
+              className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded transition-colors"
+              title="Close Panel"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">

@@ -7,8 +7,12 @@ import {
   File,
   LayoutTemplate,
   Loader2,
-  PanelLeft,
-  PanelRight,
+  Github,
+  SquarePen,
+  Settings,
+  Code,
+  Code2,
+  Pencil,
 } from 'lucide-react';
 
 import { DocumentConfig } from './types';
@@ -31,8 +35,8 @@ function App() {
 
   // Layout State
   const [showEditor, setShowEditor] = useCacheState('showEditor', true);
-  const [showConfig, setShowConfig] = useCacheState('showConfig', true);
-  const [editorWidth, setEditorWidth] = useCacheState('editorWidth', 400);
+  const [showConfig, setShowConfig] = useCacheState('showConfig', false);
+  const [editorWidth, setEditorWidth] = useCacheState('editorWidth', 500);
   const [isResizing, setIsResizing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -182,8 +186,8 @@ function App() {
     <div className="h-screen flex flex-col font-sans overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       {/* Header */}
       <header className="h-14 flex items-center justify-between px-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 z-20 shrink-0 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-600 p-1.5 rounded-lg">
+        <div className="flex items-center gap-1 md:gap-3 justify-between">
+          <div className="bg-blue-600 p-1.5 rounded-lg hidden sm:block">
             <LayoutTemplate className="text-white" size={18} />
           </div>
           <h1 className="text-lg font-bold tracking-tight hidden sm:block">
@@ -191,7 +195,7 @@ function App() {
           </h1>
 
           {/* View Toggles */}
-          <div className="flex items-center gap-1 ml-4 border-l border-gray-200 dark:border-slate-700 pl-4">
+          <div className="flex items-center gap-1 ml-2 md:border-l border-gray-200 dark:border-slate-700 md:pl-2 mr-2">
             <button
               onClick={() => setShowEditor(!showEditor)}
               className={`p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors ${
@@ -201,7 +205,7 @@ function App() {
               }`}
               title="Toggle Editor"
             >
-              <PanelLeft size={18} />
+              <Pencil size={18} />
             </button>
             <button
               onClick={() => setShowConfig(!showConfig)}
@@ -212,12 +216,12 @@ function App() {
               }`}
               title="Toggle Config"
             >
-              <PanelRight size={18} />
+              <Settings size={18} />
             </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-0.5 sm:gap-4">
           {/* Export Actions */}
           <div className="flex bg-gray-100 dark:bg-slate-800 rounded-lg p-0.5 gap-0.5">
             <button
@@ -248,33 +252,45 @@ function App() {
 
           <div className="w-px h-6 bg-gray-200 dark:bg-slate-800 hidden sm:block"></div>
 
-          <button
-            onClick={() => setIsDark(!isDark)}
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
-          >
-            {isDark ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
+          <div className="flex items-center">
+            <button
+              onClick={() => setIsDark(!isDark)}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <a
+              href="https://github.com/HoangTran0410/documorph"
+              target="_blank"
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
+            >
+              <Github size={18} />
+            </a>
+          </div>
         </div>
       </header>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
         {/* Editor Pane */}
-        {showEditor && (
-          <div
-            style={{
-              width: isMobile ? '100%' : editorWidth,
-              height: isMobile ? '40%' : '100%',
-            }}
-            className="flex-shrink-0 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 dark:border-slate-800 z-10"
-          >
-            <Editor
-              value={content}
-              onChange={setContent}
-              onReset={() => setContent(DEFAULT_MARKDOWN)}
-            />
-          </div>
-        )}
+        <div
+          style={{
+            width:
+              !isMobile && !showEditor ? 0 : isMobile ? '100%' : editorWidth,
+            height: !showEditor ? 0 : isMobile ? '50%' : '100%',
+            opacity: !showEditor ? 0 : 1,
+          }}
+          className={
+            'flex-shrink-0 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 dark:border-slate-800 z-10 overflow-hidden' +
+            (isResizing ? ' transition-none' : ' transition-all')
+          }
+        >
+          <Editor
+            value={content}
+            onChange={setContent}
+            onReset={() => setContent(DEFAULT_MARKDOWN)}
+          />
+        </div>
 
         {/* Resizer Handle (Desktop Only) */}
         {showEditor && !isMobile && (
@@ -292,27 +308,26 @@ function App() {
         </div>
 
         {/* Right Sidebar - Configuration */}
-        {showConfig && (
-          <div
-            className={`
+        <div
+          style={{
+            width: !showConfig ? 0 : isMobile ? '100%' : 320,
+            opacity: !showConfig ? 0 : 1,
+          }}
+          className={`
+              transition-all
+              overflow-hidden
             flex-shrink-0 bg-white dark:bg-slate-900 border-l border-gray-200 dark:border-slate-800 z-10 shadow-xl
             ${isMobile ? 'absolute inset-0 z-50' : 'w-80'}
           `}
-          >
-            {isMobile && (
-              <div className="p-2 border-b flex justify-end">
-                <button onClick={() => setShowConfig(false)} className="p-2">
-                  Close
-                </button>
-              </div>
-            )}
-            <ConfigPanel
-              config={config}
-              onChange={setConfig}
-              onReset={() => setConfig(DEFAULT_CONFIG)}
-            />
-          </div>
-        )}
+        >
+          <ConfigPanel
+            config={config}
+            onChange={setConfig}
+            onReset={() => setConfig(DEFAULT_CONFIG)}
+            onClose={() => setShowConfig(false)}
+            isMobile={isMobile}
+          />
+        </div>
       </div>
     </div>
   );

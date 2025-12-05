@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
             // UI libraries
             'ui-vendor': ['lucide-react'],
             // Document processing libraries
-            'docx-vendor': ['docx', 'file-saver'],
+            'docx-vendor': ['docx', 'file-saver', 'html2canvas'],
             // Markdown and syntax highlighting
             'markdown-vendor': ['marked', 'highlight.js'],
             // Math rendering
