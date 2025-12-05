@@ -65,56 +65,56 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
             {`
                 /* Headings */
                 #preview-content h1 {
-                  font-family: ${config.h1.fontFamily};
-                  font-size: ${config.h1.fontSize}pt;
-                  color: ${config.h1.color};
-                  font-weight: ${config.h1.bold ? 'bold' : 'normal'};
-                  font-style: ${config.h1.italic ? 'italic' : 'normal'};
-                  text-align: ${config.h1.alignment};
-                  margin-top: ${config.h1.marginTop}pt;
-                  margin-bottom: ${config.h1.marginBottom}pt;
+                  font-family: ${config.h1?.fontFamily};
+                  font-size: ${config.h1?.fontSize}pt;
+                  color: ${config.h1?.color};
+                  font-weight: ${config.h1?.bold ? 'bold' : 'normal'};
+                  font-style: ${config.h1?.italic ? 'italic' : 'normal'};
+                  text-align: ${config.h1?.alignment};
+                  margin-top: ${config.h1?.marginTop}pt;
+                  margin-bottom: ${config.h1?.marginBottom}pt;
                 }
                 #preview-content h2 {
-                  font-family: ${config.h2.fontFamily};
-                  font-size: ${config.h2.fontSize}pt;
-                  color: ${config.h2.color};
-                  font-weight: ${config.h2.bold ? 'bold' : 'normal'};
-                  font-style: ${config.h2.italic ? 'italic' : 'normal'};
-                  text-align: ${config.h2.alignment};
-                  margin-top: ${config.h2.marginTop}pt;
-                  margin-bottom: ${config.h2.marginBottom}pt;
+                  font-family: ${config.h2?.fontFamily};
+                  font-size: ${config.h2?.fontSize}pt;
+                  color: ${config.h2?.color};
+                  font-weight: ${config.h2?.bold ? 'bold' : 'normal'};
+                  font-style: ${config.h2?.italic ? 'italic' : 'normal'};
+                  text-align: ${config.h2?.alignment};
+                  margin-top: ${config.h2?.marginTop}pt;
+                  margin-bottom: ${config.h2?.marginBottom}pt;
                 }
                 #preview-content h3 {
-                  font-family: ${config.h3.fontFamily};
-                  font-size: ${config.h3.fontSize}pt;
-                  color: ${config.h3.color};
-                  font-weight: ${config.h3.bold ? 'bold' : 'normal'};
-                  font-style: ${config.h3.italic ? 'italic' : 'normal'};
-                  text-align: ${config.h3.alignment};
-                  margin-top: ${config.h3.marginTop}pt;
-                  margin-bottom: ${config.h3.marginBottom}pt;
+                  font-family: ${config.h3?.fontFamily};
+                  font-size: ${config.h3?.fontSize}pt;
+                  color: ${config.h3?.color};
+                  font-weight: ${config.h3?.bold ? 'bold' : 'normal'};
+                  font-style: ${config.h3?.italic ? 'italic' : 'normal'};
+                  text-align: ${config.h3?.alignment};
+                  margin-top: ${config.h3?.marginTop}pt;
+                  margin-bottom: ${config.h3?.marginBottom}pt;
                 }
 
                 /* Text Bodies */
                 #preview-content p, #preview-content li, #preview-content td, #preview-content th {
-                  font-family: ${config.p.fontFamily};
-                  font-size: ${config.p.fontSize}pt;
-                  color: ${config.p.color};
-                  font-weight: ${config.p.bold ? 'bold' : 'normal'};
-                  font-style: ${config.p.italic ? 'italic' : 'normal'};
-                  text-align: ${config.p.alignment};
+                  font-family: ${config.p?.fontFamily};
+                  font-size: ${config.p?.fontSize}pt;
+                  color: ${config.p?.color};
+                  font-weight: ${config.p?.bold ? 'bold' : 'normal'};
+                  font-style: ${config.p?.italic ? 'italic' : 'normal'};
+                  text-align: ${config.p?.alignment};
                   line-height: 1.5;
                 }
                 #preview-content p {
-                   margin-top: ${config.p.marginTop}pt;
-                   margin-bottom: ${config.p.marginBottom}pt;
+                   margin-top: ${config.p?.marginTop}pt;
+                   margin-bottom: ${config.p?.marginBottom}pt;
                 }
 
                 /* Links */
                 #preview-content a {
-                  color: ${config.link.color};
+                  color: ${config.link?.color};
                   text-decoration: ${
-                    config.link.underline ? 'underline' : 'none'
+                    config.link?.underline ? 'underline' : 'none'
                   };
                 }
 
@@ -170,14 +170,14 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
 
                 /* Quotes */
                 #preview-content blockquote {
-                  font-family: ${config.quote.fontFamily};
-                  font-size: ${config.quote.fontSize}pt;
-                  color: ${config.quote.color};
-                  font-weight: ${config.quote.bold ? 'bold' : 'normal'};
-                  font-style: ${config.quote.italic ? 'italic' : 'normal'};
-                  text-align: ${config.quote.alignment};
-                  margin-top: ${config.quote.marginTop}pt;
-                  margin-bottom: ${config.quote.marginBottom}pt;
+                  font-family: ${config.quote?.fontFamily};
+                  font-size: ${config.quote?.fontSize}pt;
+                  color: ${config.quote?.color};
+                  font-weight: ${config.quote?.bold ? 'bold' : 'normal'};
+                  font-style: ${config.quote?.italic ? 'italic' : 'normal'};
+                  text-align: ${config.quote?.alignment};
+                  margin-top: ${config.quote?.marginTop}pt;
+                  margin-bottom: ${config.quote?.marginBottom}pt;
                   border-left: 4px solid #ccc;
                   padding-left: 12pt;
                   margin-left: 0;
@@ -185,9 +185,9 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
 
                 /* Code - Inline code only (not syntax highlighted blocks) */
                 #preview-content :not(pre) > code {
-                  font-family: ${config.code.fontFamily};
-                  color: ${config.code.color};
-                  font-size: ${config.code.fontSize}pt;
+                  font-family: ${config.code?.fontFamily};
+                  color: ${config.code?.color};
+                  font-size: ${config.code?.fontSize}pt;
                   background: #f5f5f5;
                   padding: 2px 6px;
                   border-radius: 3px;
@@ -195,8 +195,8 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
 
                 /* Code Blocks - Syntax Highlighted */
                 #preview-content pre {
-                  margin: ${config.code.marginTop}pt 0 ${
-              config.code.marginBottom
+                  margin: ${config.code?.marginTop}pt 0 ${
+              config.code?.marginBottom
             }pt 0;
                   border-radius: 6px;
                   overflow-x: auto;
@@ -205,8 +205,8 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
                 }
 
                 #preview-content pre code.hljs {
-                  font-family: ${config.code.fontFamily};
-                  font-size: ${config.code.fontSize}pt;
+                  font-family: ${config.code?.fontFamily};
+                  font-size: ${config.code?.fontSize}pt;
                   display: block;
                   padding: 12pt;
                   border-radius: 6px;
@@ -254,22 +254,22 @@ const Preview: React.FC<PreviewProps> = ({ content, config }) => {
 
                 /* Images */
                 #preview-content img {
-                  max-width: ${config.img.maxWidth};
+                  max-width: ${config.img?.maxWidth};
                   height: auto;
-                  margin-top: ${config.img.marginTop}pt;
-                  margin-bottom: ${config.img.marginBottom}pt;
+                  margin-top: ${config.img?.marginTop}pt;
+                  margin-bottom: ${config.img?.marginBottom}pt;
                   display: block;
                   margin-left: ${
-                    config.img.alignment === 'center'
+                    config.img?.alignment === 'center'
                       ? 'auto'
-                      : config.img.alignment === 'right'
+                      : config.img?.alignment === 'right'
                       ? 'auto'
                       : '0'
                   };
                   margin-right: ${
-                    config.img.alignment === 'center'
+                    config.img?.alignment === 'center'
                       ? 'auto'
-                      : config.img.alignment === 'right'
+                      : config.img?.alignment === 'right'
                       ? '0'
                       : 'auto'
                   };

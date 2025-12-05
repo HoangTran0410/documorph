@@ -60,7 +60,9 @@ const fetchImage = async (url: string): Promise<ArrayBuffer | null> => {
  * Extract image dimensions from HTML element (style, width/height attributes)
  * Returns dimensions in pixels, or default values if not found
  */
-const getImageDimensions = (imgElement: HTMLElement): { width: number; height: number } => {
+const getImageDimensions = (
+  imgElement: HTMLElement
+): { width: number; height: number } => {
   let width = 400; // default width
   let height = 300; // default height
 
@@ -116,12 +118,12 @@ const processInlineChildren = async (
             text: child.textContent,
             font: config.fontFamily,
             size: config.fontSize * 2,
-            color: config.color.replace('#', ''),
+            color: config.color?.replace?.('#', ''),
             bold: config.bold,
             italics: config.italic,
             underline: config.underline
               ? {
-                  color: config.color.replace('#', ''),
+                  color: config.color?.replace?.('#', ''),
                   type: UnderlineType.SINGLE,
                 }
               : undefined,
@@ -158,7 +160,7 @@ const processInlineChildren = async (
               text: decodedLatex,
               font: 'Cambria Math',
               size: config.fontSize * 2,
-              color: config.color.replace('#', ''),
+              color: config.color?.replace?.('#', ''),
               italics: true,
             })
           );
@@ -294,7 +296,7 @@ const processElement = async (
             new TextRun({
               text: decodedLatex,
               font: 'Cambria Math',
-              size: config.p.fontSize * 2 + 4,
+              size: config.p?.fontSize * 2 + 4,
               italics: true,
             }),
           ],
@@ -306,25 +308,24 @@ const processElement = async (
 
   // 1. HEADINGS
   if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
-    let style = config.h1;
-    let headingLevel = HeadingLevel.HEADING_1;
-
-    if (tagName === 'h2') {
-      style = config.h2;
-      headingLevel = HeadingLevel.HEADING_2;
-    } else if (tagName === 'h3') {
-      style = config.h3;
-      headingLevel = HeadingLevel.HEADING_3;
-    } else if (tagName === 'h4') {
-      style = config.h3;
-      headingLevel = HeadingLevel.HEADING_4;
-    } else if (tagName === 'h5') {
-      style = config.h3;
-      headingLevel = HeadingLevel.HEADING_5;
-    } else if (tagName === 'h6') {
-      style = config.h3;
-      headingLevel = HeadingLevel.HEADING_6;
-    }
+    const StyleMap = {
+      [HeadingLevel.HEADING_1]: config.h1,
+      [HeadingLevel.HEADING_2]: config.h2,
+      [HeadingLevel.HEADING_3]: config.h3,
+      [HeadingLevel.HEADING_4]: config.h3,
+      [HeadingLevel.HEADING_5]: config.h3,
+      [HeadingLevel.HEADING_6]: config.h3,
+    };
+    const TagNameMap = {
+      h1: HeadingLevel.HEADING_1,
+      h2: HeadingLevel.HEADING_2,
+      h3: HeadingLevel.HEADING_3,
+      h4: HeadingLevel.HEADING_4,
+      h5: HeadingLevel.HEADING_5,
+      h6: HeadingLevel.HEADING_6,
+    };
+    let headingLevel = TagNameMap[tagName];
+    let style = StyleMap[headingLevel];
 
     const runs = await processInlineChildren(element, style, config.link);
     docxElements.push(
@@ -349,8 +350,8 @@ const processElement = async (
         new Paragraph({
           alignment: mapAlignment(config.p.alignment),
           spacing: {
-            before: config.p.marginTop * 20,
-            after: config.p.marginBottom * 20,
+            before: config.p?.marginTop * 20,
+            after: config.p?.marginBottom * 20,
           },
           children: runs,
         })
@@ -361,7 +362,11 @@ const processElement = async (
 
   // 3. BLOCKQUOTES
   if (tagName === 'blockquote') {
-    const runs = await processInlineChildren(element, config.quote, config.link);
+    const runs = await processInlineChildren(
+      element,
+      config.quote,
+      config.link
+    );
     docxElements.push(
       new Paragraph({
         alignment: mapAlignment(config.quote.alignment),
@@ -441,7 +446,9 @@ const processElement = async (
               children: [
                 new Paragraph({
                   children: runs,
-                  alignment: isHeader ? AlignmentType.CENTER : AlignmentType.LEFT,
+                  alignment: isHeader
+                    ? AlignmentType.CENTER
+                    : AlignmentType.LEFT,
                 }),
               ],
               width: { size: 100 / cells.length, type: WidthType.PERCENTAGE },
@@ -493,7 +500,10 @@ const processElement = async (
             children: [
               new ImageRun({
                 data: new Uint8Array(buffer),
-                transformation: { width: dimensions.width, height: dimensions.height },
+                transformation: {
+                  width: dimensions.width,
+                  height: dimensions.height,
+                },
               } as any),
             ],
           })
@@ -565,4 +575,3 @@ export const generateDocxBlob = async (
 
   return await Packer.toBlob(docx);
 };
-
