@@ -1,13 +1,65 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Code2, RotateCcw } from 'lucide-react';
+import OverType from 'overtype';
 
 interface EditorProps {
   value: string;
   onChange: (value: string) => void;
   onReset: () => void;
+  isDark: boolean;
 }
 
-const Editor: React.FC<EditorProps> = ({ value, onChange, onReset }) => {
+const Editor: React.FC<EditorProps> = ({
+  value,
+  onChange,
+  onReset,
+  isDark,
+}) => {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const instanceRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (editorRef.current && !instanceRef.current) {
+      const [instance] = new OverType(editorRef.current, {
+        value: value,
+        placeholder: '# Start typing your document...',
+        fontSize: '14px',
+        lineHeight: 1.6,
+        fontFamily:
+          'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+        padding: '16px',
+        theme: isDark ? 'cave' : 'solar',
+        toolbar: true,
+        showStats: true,
+        smartLists: true,
+        onChange: (newValue: string) => {
+          onChange(newValue);
+        },
+      });
+
+      instanceRef.current = instance;
+    }
+
+    return () => {
+      if (instanceRef.current) {
+        instanceRef.current.destroy();
+        instanceRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (instanceRef.current && value !== instanceRef.current.getValue()) {
+      instanceRef.current.setValue(value);
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (instanceRef.current) {
+      instanceRef.current.setTheme(isDark ? 'cave' : 'solar');
+    }
+  }, [isDark]);
+
   return (
     <div className="h-full flex flex-col bg-white dark:bg-slate-900">
       <div className="p-2 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
@@ -30,11 +82,10 @@ const Editor: React.FC<EditorProps> = ({ value, onChange, onReset }) => {
         </div>
       </div>
 
-      <textarea
-        className="flex-1 w-full h-full p-4 resize-none focus:outline-none font-mono text-sm bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 leading-relaxed"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="# Start typing your document..."
+      <div
+        ref={editorRef}
+        className="flex-1 w-full h-full overflow-auto"
+        style={{ minHeight: '300px' }}
       />
     </div>
   );

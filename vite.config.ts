@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
             // Document processing libraries
             'docx-vendor': ['docx', 'file-saver', 'html2canvas'],
             // Markdown and syntax highlighting
-            'markdown-vendor': ['marked', 'highlight.js'],
+            'markdown-vendor': ['marked', 'highlight.js', 'overtype'],
             // Math rendering
             'math-vendor': ['katex'],
           },

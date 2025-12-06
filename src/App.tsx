@@ -289,6 +289,7 @@ function App() {
             value={content}
             onChange={setContent}
             onReset={() => setContent(DEFAULT_MARKDOWN)}
+            isDark={isDark}
           />
         </div>
 
